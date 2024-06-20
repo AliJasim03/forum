@@ -26,8 +26,8 @@ func ServerInit() {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	tmpl = "templates/" + tmpl + ".html"
-	t, err := template.ParseFiles(tmpl, "templates/layout.html")
+	tmpl = "front-end/templates/" + tmpl + ".html"
+	t, err := template.ParseFiles(tmpl, "front-end/templates/layout.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
