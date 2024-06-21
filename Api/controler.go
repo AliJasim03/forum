@@ -75,7 +75,7 @@ func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func loggin(res http.ResponseWriter, req *http.Request){
+func loggin(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -108,31 +108,31 @@ func loggin(res http.ResponseWriter, req *http.Request){
 		return
 	}
 
-    sessionToken, err := uuid.NewV4()
-    if err != nil {
-        http.Error(res, "failed to generate session token", http.StatusInternalServerError)
-        return
-    }
+	sessionToken, err := uuid.NewV4()
+	if err != nil {
+		http.Error(res, "failed to generate session token", http.StatusInternalServerError)
+		return
+	}
 
-    _, err = DB.Exec("INSERT INTO sessions (user_id, session_token, expires_at) VALUES (?, ?, ?)",
-        userID, sessionToken.String(), time.Now().Add(10*time.Hour).Format("2000-08-11 17:01:09"))
-    if err != nil {
-        http.Error(res, "fail to store session in database", http.StatusInternalServerError)
-        return
-    }
+	_, err = DB.Exec("INSERT INTO sessions (user_id, session_token, expires_at) VALUES (?, ?, ?)",
+		userID, sessionToken.String(), time.Now().Add(10*time.Hour).Format("2000-08-11 17:01:09"))
+	if err != nil {
+		http.Error(res, "fail to store session in database", http.StatusInternalServerError)
+		return
+	}
 
-    cookie := http.Cookie{
-        Name:     "token",
-        Value:    sessionToken.String(),
-        Expires:  time.Now().Add(10 * time.Hour),
-        HttpOnly: true,
-        Path:     "/",
-    }
-    http.SetCookie(res, &cookie)
+	cookie := http.Cookie{
+		Name:     "token",
+		Value:    sessionToken.String(),
+		Expires:  time.Now().Add(10 * time.Hour),
+		HttpOnly: true,
+		Path:     "/",
+	}
+	http.SetCookie(res, &cookie)
 
 }
 
-func createPost(res http.ResponseWriter, req *http.Request){
+func createPost(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -142,14 +142,31 @@ func createPost(res http.ResponseWriter, req *http.Request){
 	DB := db.InitDB()
 	defer db.CloseDB(DB)
 
-	title := req.FormValue("title")
-	content := req.FormValue("content")
-
-	// Check if required fields are provided
-	if title == "" || content == "" {
-		http.Error(res, "Title and content are required", http.StatusBadRequest)
+	//get the cookie to use token to get userID
+	cookie, err := req.Cookie("token")
+	if err != nil {
+		http.Error(res, "Unauthorized", http.StatusUnauthorized)
 		return
 	}
 
+	title := req.FormValue("title")
+	content := req.FormValue("content")
+	catType := req.Form["categories"]
+
+	// Check if required fields are provided
+	if title == "" || content == "" {
+		http.Error(res, "Title & content are required", http.StatusBadRequest)
+		return
+	}
+
+	sessionToken := cookie.Value
+	var userID int
+	var expiresAt time.Time
+
+	err = DB.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
+	if err != nil {
+		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
 
 }
