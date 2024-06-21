@@ -9,23 +9,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type User struct {
-	Email    string
-	Username string
-	Password string
-}
-
-type Post struct {
-	PostID  int
-	Title   string
-	Content string
-}
-
-type Comment struct {
-	PostID  int
-	Content string
-}
-
 func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
@@ -132,41 +115,3 @@ func loggin(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func createPost(res http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodPost {
-		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	//declare the db
-	DB := db.InitDB()
-	defer db.CloseDB(DB)
-
-	//get the cookie to use token to get userID
-	cookie, err := req.Cookie("token")
-	if err != nil {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	title := req.FormValue("title")
-	content := req.FormValue("content")
-	catType := req.Form["categories"]
-
-	// Check if required fields are provided
-	if title == "" || content == "" {
-		http.Error(res, "Title & content are required", http.StatusBadRequest)
-		return
-	}
-
-	sessionToken := cookie.Value
-	var userID int
-	var expiresAt time.Time
-
-	err = DB.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
-	if err != nil {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-}
