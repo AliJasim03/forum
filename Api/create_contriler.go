@@ -77,3 +77,39 @@ func createPost(res http.ResponseWriter, req *http.Request) {
 	}
 
 }
+
+func createComment(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	//declare the db
+	DB := db.InitDB()
+	defer db.CloseDB(DB)
+
+	//get the cookie to use token to get userID
+	cookie, err := req.Cookie("token")
+	if err != nil {
+		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	sessionToken := cookie.Value
+	var userID int
+	var expiresAt time.Time
+
+	//get the user_id of who will comment
+	err = DB.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
+	if err != nil || expiresAt.Before(time.Now()) {
+		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	content := req.FormValue("content")
+	if content == "" {
+		http.Error(res, "the content must be fill", http.StatusBadRequest)
+		return
+	}
+
+}

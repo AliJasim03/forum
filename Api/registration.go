@@ -9,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Rigestrion(res http.ResponseWriter, req *http.Request) {
+func Rigestrion (res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -58,7 +58,7 @@ func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func loggin(res http.ResponseWriter, req *http.Request) {
+func Loggin (res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
