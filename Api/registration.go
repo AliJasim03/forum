@@ -9,7 +9,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func Rigestrion (res http.ResponseWriter, req *http.Request) {
+var dcookie = &http.Cookie{
+	Name:     "token",
+	Value:    "",
+	Expires:  time.Unix(0, 0),
+	HttpOnly: true,
+	Path:     "/",
+}
+
+func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -58,7 +66,7 @@ func Rigestrion (res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func Loggin (res http.ResponseWriter, req *http.Request) {
+func Loggin(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -105,7 +113,7 @@ func Loggin (res http.ResponseWriter, req *http.Request) {
 	}
 
 	cookie := http.Cookie{
-		Name:     "token",
+		Name:     "token", //l don't if l should change name or not because it same to the cookie of token
 		Value:    sessionToken.String(),
 		Expires:  time.Now().Add(10 * time.Hour),
 		HttpOnly: true,
@@ -115,3 +123,32 @@ func Loggin (res http.ResponseWriter, req *http.Request) {
 
 }
 
+func logout(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodGet {
+		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	cookie, err := req.Cookie("session_token")
+	if err != nil {
+		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	sessionToken := cookie.Value
+
+	//remove session
+	DB := db.InitDB()
+	defer db.CloseDB(DB)
+
+	_, err = DB.Exec("DELETE FROM sessions WHERE session_token = ?", sessionToken)
+	if err != nil {
+		http.Error(res, "fail to remove session from database", http.StatusInternalServerError)
+		return
+	}
+
+	// put the empty cookie
+	http.SetCookie(res, dcookie)
+
+	http.Redirect(res, req, "/", http.StatusSeeOther)
+}
