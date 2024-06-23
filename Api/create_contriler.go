@@ -3,6 +3,7 @@ package forum
 import (
 	"forum/db"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -112,4 +113,11 @@ func createComment(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//here should use strings to get specfic prefix of URL
+	postID := strings.Trim(req.URL.Path, "/lg")
+
+	_,err = DB.Exec("INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)", postID, userID, content, time.Now())
+	if err != nil {
+		http.Error(res, "fail to insert data to comment table", http.StatusInternalServerError)
+	}
 }
