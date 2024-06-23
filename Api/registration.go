@@ -10,7 +10,7 @@ import (
 )
 
 var dcookie = &http.Cookie{
-	Name:     "token",
+	Name:     "token", //l don't if l should change name or not because it same to the cookie of token
 	Value:    "",
 	Expires:  time.Unix(0, 0),
 	HttpOnly: true,
@@ -113,7 +113,7 @@ func Loggin(res http.ResponseWriter, req *http.Request) {
 	}
 
 	cookie := http.Cookie{
-		Name:     "token", //l don't if l should change name or not because it same to the cookie of token
+		Name:     "token",
 		Value:    sessionToken.String(),
 		Expires:  time.Now().Add(10 * time.Hour),
 		HttpOnly: true,

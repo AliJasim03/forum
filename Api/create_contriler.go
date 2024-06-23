@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+//note make sure to  cheeck if the user expire session or not
+
 func createPost(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
@@ -45,6 +47,12 @@ func createPost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//check if the session already end or not
+	if expiresAt.Before(time.Now()) {
+		http.Error(res, "Session expired", http.StatusUnauthorized)
+		return
+	}
+
 	//create the post
 	_, err = DB.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, title, content)
 	if err != nil {
@@ -76,7 +84,6 @@ func createPost(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
-
 }
 
 func createComment(res http.ResponseWriter, req *http.Request) {
@@ -107,6 +114,12 @@ func createComment(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	//check if the session already end or not
+	if expiresAt.Before(time.Now()) {
+		http.Error(res, "Session expired", http.StatusUnauthorized)
+		return
+	}
+
 	content := req.FormValue("content")
 	if content == "" {
 		http.Error(res, "the content must be fill", http.StatusBadRequest)
@@ -116,7 +129,7 @@ func createComment(res http.ResponseWriter, req *http.Request) {
 	//here should use strings to get specfic prefix of URL
 	postID := strings.Trim(req.URL.Path, "/lg")
 
-	_,err = DB.Exec("INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)", postID, userID, content, time.Now())
+	_, err = DB.Exec("INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)", postID, userID, content, time.Now())
 	if err != nil {
 		http.Error(res, "fail to insert data to comment table", http.StatusInternalServerError)
 	}
