@@ -1,13 +1,14 @@
 package main
 
 import (
-	"forum/Api"
-	"forum/db"
+	api "forum/Api"
+	backend "forum/db"
 )
 
 func main() {
 
-	db.InitDB()
+	db := backend.OpenConnection()
 
-	forum.ServerInit()
+	server := api.New(db)
+	server.Init()
 }

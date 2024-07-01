@@ -1,8 +1,7 @@
-package forum
+package api
 
 import (
 	"fmt"
-	"forum/db"
 	"net/http"
 	"time"
 
@@ -10,7 +9,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var dcookie = &http.Cookie{
+var emptyCookie = &http.Cookie{
 	Name:     "token", //l don't if l should change name or not because it same to the cookie of token
 	Value:    "",
 	Expires:  time.Unix(0, 0),
@@ -18,9 +17,8 @@ var dcookie = &http.Cookie{
 	Path:     "/",
 }
 
-func Rigestrion(res http.ResponseWriter, req *http.Request) {
-	DB := db.InitDB()
-	defer db.CloseDB(DB)
+func (s *server) Registration(res http.ResponseWriter, req *http.Request) {
+
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -39,7 +37,7 @@ func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	// Check if the email is already used before
 	var exists bool
 	query := `SELECT EXISTS(SELECT 1 FROM users WHERE email = ? LIMIT 1)`
-	err := DB.QueryRow(query, email).Scan(&exists)
+	err := s.db.QueryRow(query, email).Scan(&exists)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -51,7 +49,7 @@ func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	}
 	// Check if the name is already used before
 	query = `SELECT EXISTS(SELECT 1 FROM users WHERE username = ? LIMIT 1)`
-	err = DB.QueryRow(query, username).Scan(&exists)
+	err = s.db.QueryRow(query, username).Scan(&exists)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -65,7 +63,7 @@ func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	}
 
 	//insert data
-	_, err = DB.Exec("INSERT INTO users (email, username, password)VALUES(?, ?, ?)", email, username, hashPass)
+	_, err = s.db.Exec("INSERT INTO users (email, username, password)VALUES(?, ?, ?)", email, username, hashPass)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -73,12 +71,12 @@ func Rigestrion(res http.ResponseWriter, req *http.Request) {
 
 	//get the user id
 	var userID int
-	err = DB.QueryRow("SELECT id FROM users WHERE username = ? and email = ?", username, email).Scan(&userID)
+	err = s.db.QueryRow("SELECT id FROM users WHERE username = ? and email = ?", username, email).Scan(&userID)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
 	}
-	cookie, err := generateCookie(fmt.Sprint(userID))
+	cookie, err := s.generateCookie(fmt.Sprint(userID))
 	if err != nil {
 		http.Error(res, "fail to generate cookie", http.StatusInternalServerError)
 		return
@@ -87,16 +85,12 @@ func Rigestrion(res http.ResponseWriter, req *http.Request) {
 	http.SetCookie(res, &cookie)
 }
 
-func Login(res http.ResponseWriter, req *http.Request) {
+func (s *server) Login(res http.ResponseWriter, req *http.Request) {
 
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-	DB := db.InitDB()
-	//declare the db
-	defer db.CloseDB(DB)
 
 	email := req.FormValue("email")
 	password := req.FormValue("password")
@@ -109,7 +103,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 
 	var storedPass string
 	var userID int
-	err := DB.QueryRow("SELECT id, password FROM users WHERE email = ?", email).Scan(&userID, &storedPass)
+	err := s.db.QueryRow("SELECT id, password FROM users WHERE email = ?", email).Scan(&userID, &storedPass)
 	if err != nil {
 		http.Error(res, "invalild username or password", http.StatusUnauthorized)
 		return
@@ -121,7 +115,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	cookie, err := generateCookie(fmt.Sprint(userID))
+	cookie, err := s.generateCookie(fmt.Sprint(userID))
 	if err != nil {
 		http.Error(res, "fail to generate cookie", http.StatusInternalServerError)
 		return
@@ -133,7 +127,7 @@ func Login(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func logout(res http.ResponseWriter, req *http.Request) {
+func (s *server) logout(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
 		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
 		return
@@ -147,27 +141,19 @@ func logout(res http.ResponseWriter, req *http.Request) {
 
 	sessionToken := cookie.Value
 
-	DB := db.InitDB()
-	//remove session
-	defer db.CloseDB(DB)
-
-	_, err = DB.Exec("DELETE FROM sessions WHERE session_token = ?", sessionToken)
+	_, err = s.db.Exec("DELETE FROM sessions WHERE session_token = ?", sessionToken)
 	if err != nil {
 		http.Error(res, "fail to remove session from database", http.StatusInternalServerError)
 		return
 	}
 
 	// put the empty cookie
-	http.SetCookie(res, dcookie)
+	http.SetCookie(res, emptyCookie)
 
 	http.Redirect(res, req, "/", http.StatusSeeOther)
 }
 
-func generateCookie(userID string) (http.Cookie, error) {
-
-	DB := db.InitDB()
-	//declare the db
-	defer db.CloseDB(DB)
+func (s *server) generateCookie(userID string) (http.Cookie, error) {
 
 	sessionToken, err := uuid.NewV4()
 	if err != nil {
@@ -179,7 +165,7 @@ func generateCookie(userID string) (http.Cookie, error) {
 	// Format the future time
 	formattedTime := futureTime.Format("2006-01-02 15:04:05")
 
-	DB.Exec("INSERT INTO sessions (user_id, session_token, expires_at) VALUES (?, ?, ?)",
+	s.db.Exec("INSERT INTO sessions (user_id, session_token, expires_at) VALUES (?, ?, ?)",
 		userID, sessionToken.String(), formattedTime)
 
 	cookie := http.Cookie{
@@ -192,25 +178,25 @@ func generateCookie(userID string) (http.Cookie, error) {
 	return cookie, nil
 }
 
-func authenticateCookie(r *http.Request) bool {
-	//extracat tocken
-	tocken, err := r.Cookie("token")
+func (s *server) authenticateCookie(r *http.Request) bool {
+
+	// extract token
+	token, err := r.Cookie("token")
 	if err != nil {
 		return false
 	}
-	//get the cookie to use token to get userID
-	DB := db.InitDB()
-	defer db.CloseDB(DB)
-	cookie := tocken
+	cookie := token
 	sessionToken := cookie.Value
 	var userID int
 	var expiresAt time.Time
 
-	err = DB.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
+	//get the cookie to use token to get userID
+	err = s.db.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
 	if err != nil || expiresAt.Before(time.Now()) {
 		return false
 	}
-	//check if the session already end or not
+
+	// check if the session ended or not
 	if expiresAt.Before(time.Now()) {
 		return false
 	}
