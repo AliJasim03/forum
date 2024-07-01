@@ -1,0 +1,4 @@
+### Registration
+POST http://localhost:8080/registerAction?email=hello@me.com&username=me&password=secure
+
+###
