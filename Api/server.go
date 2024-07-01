@@ -1,4 +1,4 @@
-package server
+package forum
 
 import (
 	"fmt"
@@ -16,9 +16,13 @@ func ServerInit() {
 	// Define routes
 	mux.HandleFunc("/", indexHandler)
 
-	mux.HandleFunc("/register", registerHandler)
+	mux.HandleFunc("/register", registerPage)
 
-	mux.HandleFunc("/registerUser", registerUserHandler)
+	mux.HandleFunc("/registerAction", Rigestrion)
+
+	mux.HandleFunc("/login", loginPage)
+
+	mux.HandleFunc("/loginAction", Login)
 
 	fmt.Println("Server is running on http://localhost:8080/")
 	//open in browser
@@ -29,7 +33,7 @@ func ServerInit() {
 
 }
 
-func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
+func RenderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 	tmpl = "front-end/templates/" + tmpl + ".html"
 	t, err := template.ParseFiles(tmpl, "front-end/templates/layout.html")
 	if err != nil {
@@ -43,26 +47,21 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "index", map[string]interface{}{
-		"Title": "Homepage",
+	isLooged := authenticateCookie(r)
+	RenderTemplate(w, "index", map[string]interface{}{
+		"Title":      "Homepage",
+		"isLoggedIn": isLooged,
 	})
 }
 
-func registerHandler(w http.ResponseWriter, r *http.Request) {
-	renderTemplate(w, "register", map[string]interface{}{
+func registerPage(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "register", map[string]interface{}{
 		"Title": "Register",
 	})
 }
-func registerUserHandler(w http.ResponseWriter, r *http.Request) {
-	err := r.ParseForm()
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	username := r.FormValue("username")
-	email := r.FormValue("email")
-	password := r.FormValue("password")
-	fmt.Println(username, password, email)
 
-	http.Redirect(w, r, "/", http.StatusFound)
+func loginPage(w http.ResponseWriter, r *http.Request) {
+	RenderTemplate(w, "login", map[string]interface{}{
+		"Title": "Login",
+	})
 }

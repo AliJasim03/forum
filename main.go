@@ -1,14 +1,13 @@
 package main
 
 import (
-    "forum/db"
-    "forum/server"
+	"forum/Api"
+	"forum/db"
 )
 
 func main() {
 
-    db.InitDB()
+	db.InitDB()
 
-    server.ServerInit()
+	forum.ServerInit()
 }
-

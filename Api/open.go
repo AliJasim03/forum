@@ -1,4 +1,4 @@
-package server
+package forum
 
 import (
 	"os/exec"

@@ -27,7 +27,13 @@
                     <li class="nav-item"><a class="nav-link" href="#!">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="#!">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="#!">Services</a></li>
-                    <li class="nav-item"><a class="nav-link" href="register">Register</a></li>
+                    {{if not .isLoggedIn}}
+                        <li class="nav-item"><a class="nav-link" href="register">Register</a></li>
+                        <li class="nav-item"><a class="nav-link" href="login">Login</a></li>
+                    {{end}}
+                    {{if .isLoggedIn}}
+                        <li class="nav-item"><a class="nav-link" href="logout">Logout</a></li>
+                    {{end}}
                 </ul>
             </div>
         </div>
