@@ -1,21 +1,37 @@
 package db
 
 import (
-    "database/sql"
-    "log"
-    _ "golang.org/x/crypto/bcrypt"
-    _ "github.com/gofrs/uuid"
-    _ "github.com/mattn/go-sqlite3"
+	"database/sql"
+	_ "github.com/gofrs/uuid"
+	_ "github.com/mattn/go-sqlite3"
+	_ "golang.org/x/crypto/bcrypt"
+	"log"
+	"os"
 )
 
-func InitDB() *sql.DB {
-    db, err := sql.Open("sqlite3", "./forum.db")
-    if err != nil {
-        log.Fatal(err)
-    }
-    return db
+func OpenConnection() *sql.DB {
+	db, err := sql.Open("sqlite3", "db/forum.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return initDB(db)
 }
 
 func CloseDB(db *sql.DB) {
-    db.Close()
+	db.Close()
+}
+
+func initDB(db *sql.DB) *sql.DB {
+	sqlFile, err := os.ReadFile("db/init.sql")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	_, err = db.Exec(string(sqlFile))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return db
 }

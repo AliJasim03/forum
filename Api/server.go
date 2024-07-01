@@ -1,69 +1,63 @@
-package forum
+package api
 
 import (
+	"database/sql"
 	"fmt"
-	"html/template"
 	"log"
 	"net/http"
+	"os/exec"
+	"runtime"
 )
 
-func ServerInit() {
-	// Create a new ServeMux
-	mux := http.NewServeMux()
+type server struct {
+	mux *http.ServeMux
+	db  *sql.DB
+}
+
+func New(db *sql.DB) *server {
+	return &server{
+		mux: http.NewServeMux(),
+		db:  db,
+	}
+}
+
+func (s *server) Init() {
+
 	// Serve static files (CSS, JavaScript, etc.)
-	mux.Handle("/front-end/static/", http.StripPrefix("/front-end/static/", http.FileServer(http.Dir("./front-end/static"))))
+	s.mux.Handle("/front-end/static/", http.StripPrefix("/front-end/static/", http.FileServer(http.Dir("./front-end/static"))))
 
 	// Define routes
-	mux.HandleFunc("/", indexHandler)
+	s.mux.HandleFunc("/", s.indexHandler)
+	s.mux.HandleFunc("/login", s.loginPage)
+	s.mux.HandleFunc("/register", s.registerPage)
 
-	mux.HandleFunc("/register", registerPage)
-
-	mux.HandleFunc("/registerAction", Rigestrion)
-
-	mux.HandleFunc("/login", loginPage)
-
-	mux.HandleFunc("/loginAction", Login)
+	s.mux.HandleFunc("/registerAction", s.Registration)
+	s.mux.HandleFunc("/loginAction", s.Login)
 
 	mux.HandleFunc("/logout", Logout)
 
 	fmt.Println("Server is running on http://localhost:8080/")
 	//open in browser
 	open("http://localhost:8080/")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	if err := http.ListenAndServe(":8080", s.mux); err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
-
 }
 
-func RenderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
-	tmpl = "front-end/templates/" + tmpl + ".html"
-	t, err := template.ParseFiles(tmpl, "front-end/templates/layout.html")
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+func open(url string) error {
+	var cmd string
+	var args []string
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = "cmd"
+		args = []string{"/c", "start"}
+	case "darwin":
+		cmd = "open"
+	default: // "linux", "freebsd", "openbsd", "netbsd"
+		cmd = "xdg-open"
 	}
-	err = t.ExecuteTemplate(w, "layout", data)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-	}
-}
+	args = append(args, url)
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	isLooged := authenticateCookie(r)
-	RenderTemplate(w, "index", map[string]interface{}{
-		"Title":      "Homepage",
-		"isLoggedIn": isLooged,
-	})
-}
-
-func registerPage(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, "register", map[string]interface{}{
-		"Title": "Register",
-	})
-}
-
-func loginPage(w http.ResponseWriter, r *http.Request) {
-	RenderTemplate(w, "login", map[string]interface{}{
-		"Title": "Login",
-	})
+	return exec.Command(cmd, args...).Start()
 }
