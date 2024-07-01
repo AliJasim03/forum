@@ -24,6 +24,8 @@ func ServerInit() {
 
 	mux.HandleFunc("/loginAction", Login)
 
+	mux.HandleFunc("/logout", Logout)
+
 	fmt.Println("Server is running on http://localhost:8080/")
 	//open in browser
 	open("http://localhost:8080/")

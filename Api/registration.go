@@ -133,31 +133,13 @@ func Login(res http.ResponseWriter, req *http.Request) {
 
 }
 
-func logout(res http.ResponseWriter, req *http.Request) {
+func Logout(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodGet {
 		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
-	cookie, err := req.Cookie("session_token")
-	if err != nil {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	sessionToken := cookie.Value
-
-	DB := db.InitDB()
-	//remove session
-	defer db.CloseDB(DB)
-
-	_, err = DB.Exec("DELETE FROM sessions WHERE session_token = ?", sessionToken)
-	if err != nil {
-		http.Error(res, "fail to remove session from database", http.StatusInternalServerError)
-		return
-	}
-
-	// put the empty cookie
+	//destroy the cookie
 	http.SetCookie(res, dcookie)
 
 	http.Redirect(res, req, "/", http.StatusSeeOther)
