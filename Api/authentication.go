@@ -17,7 +17,7 @@ var emptyCookie = &http.Cookie{
 	Path:     "/",
 }
 
-func (s *server) Registration(res http.ResponseWriter, req *http.Request) {
+func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
@@ -83,9 +83,10 @@ func (s *server) Registration(res http.ResponseWriter, req *http.Request) {
 	}
 
 	http.SetCookie(res, &cookie)
+	http.Redirect(res, req, "/", http.StatusSeeOther)
 }
 
-func (s *server) Login(res http.ResponseWriter, req *http.Request) {
+func (s *server) login(res http.ResponseWriter, req *http.Request) {
 
 	if req.Method != http.MethodPost {
 		http.Error(res, "method not allowed", http.StatusMethodNotAllowed)
@@ -133,7 +134,7 @@ func (s *server) logout(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	cookie, err := req.Cookie("session_token")
+	cookie, err := req.Cookie("token")
 	if err != nil {
 		http.Error(res, "Unauthorized", http.StatusUnauthorized)
 		return
@@ -171,7 +172,6 @@ func (s *server) generateCookie(userID string) (http.Cookie, error) {
 	cookie := http.Cookie{
 		Name:     "token",
 		Value:    sessionToken.String(),
-		Expires:  time.Now().Add(10 * time.Hour),
 		HttpOnly: true,
 		Path:     "/",
 	}

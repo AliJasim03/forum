@@ -31,10 +31,10 @@ func (s *server) Init() {
 	s.mux.HandleFunc("/login", s.loginPage)
 	s.mux.HandleFunc("/register", s.registerPage)
 
-	s.mux.HandleFunc("/registerAction", s.Registration)
-	s.mux.HandleFunc("/loginAction", s.Login)
+	s.mux.HandleFunc("/registerAction", s.registration)
+	s.mux.HandleFunc("/loginAction", s.login)
 
-	mux.HandleFunc("/logout", Logout)
+	s.mux.HandleFunc("/logout", s.logout)
 
 	fmt.Println("Server is running on http://localhost:8080/")
 	//open in browser
