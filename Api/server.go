@@ -3,6 +3,7 @@ package api
 import (
 	"database/sql"
 	"fmt"
+	backend "forum/db"
 	"log"
 	"net/http"
 	"os/exec"
@@ -36,12 +37,20 @@ func (s *server) Init() {
 
 	s.mux.HandleFunc("/logout", s.logout)
 
+	s.mux.HandleFunc("/likeOrDislikePost", s.likeDislikePost)
+
 	fmt.Println("Server is running on http://localhost:8080/")
 	//open in browser
 	open("http://localhost:8080/")
 	if err := http.ListenAndServe(":8080", s.mux); err != nil {
 		log.Fatal("ListenAndServe: ", err)
 	}
+}
+
+func (s *server) getPosts(user int, filter string) []backend.Post {
+	var posts []backend.Post
+	backend.GetPosts(s.db, user, &posts, filter)
+	return posts
 }
 
 func open(url string) error {

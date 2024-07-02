@@ -178,12 +178,12 @@ func (s *server) generateCookie(userID string) (http.Cookie, error) {
 	return cookie, nil
 }
 
-func (s *server) authenticateCookie(r *http.Request) bool {
-
+func (s *server) authenticateCookie(r *http.Request) (bool, int) {
 	// extract token
+	// I used -1 eventhough I want to use nil but there is no optional type in go
 	token, err := r.Cookie("token")
 	if err != nil {
-		return false
+		return false, -1
 	}
 	cookie := token
 	sessionToken := cookie.Value
@@ -193,12 +193,13 @@ func (s *server) authenticateCookie(r *http.Request) bool {
 	//get the cookie to use token to get userID
 	err = s.db.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
 	if err != nil || expiresAt.Before(time.Now()) {
-		return false
+		return false, -1
 	}
 
 	// check if the session ended or not
 	if expiresAt.Before(time.Now()) {
-		return false
+		return false, -1
 	}
-	return true
+
+	return true, userID
 }

@@ -126,7 +126,7 @@ func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func (s *server) likePost(res http.ResponseWriter, req *http.Request) {
+func (s *server) likeDislikePost_sorryIdidntsawit(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
 		return

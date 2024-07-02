@@ -1,0 +1,15 @@
+.custom-hover-dislike {
+    background-color: #dc3545; /* Bootstrap danger color */
+    color: white;
+    border-color: #dc3545;
+
+
+}
+
+
+.custom-hover-like {
+    background-color: #28a745; /* Bootstrap success color */
+    color: white;
+    border-color: #28a745;
+}
+

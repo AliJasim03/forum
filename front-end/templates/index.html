@@ -20,17 +20,48 @@
         </div>
         <!-- Content Row-->
         <div class="row gx-4 gx-lg-5">
+            <p>{{.Posts}}</p>
             {{range $post := .Posts}}
-                <div class="col-md-4 mb-5">
+                <div class="col-md-4 mb-5" id="{{$post.ID}}">
                     <div class="card h-100">
                         <div class="card-body">
-                            <h2 class="card-title">{{$post.title}}</h2>
-                            <p class="card-text">{{$post.content}}</p>
+                            <h2 class="card-title">{{$post.Title}}</h2>
+                            <p class="card-text">{{$post.Content}}</p>
                         </div>
-                        <div class="card-footer">
-                            <p>{{$post.user}}</p>
-                            <a href="dislike"></a>
-                            <a href="like"></a>
+                        <div class="card-footer d-flex justify-content-between align-items-center">
+                            <div class="col-9">
+                                <div class="row">
+                                    <p class="mb-0"><strong>{{$post.CreatedBy}}</strong></p>
+                                    <p class="mb-0 text-muted"> {{$post.CreatedOn}}</p>
+                                </div>
+                            </div>
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <form action="/likeOrDislikePost" method="post" class="d-inline">
+                                        <input type="hidden" name="postID" value="{{$post.ID}}">
+                                        <input type="hidden" name="isLike" value="dislike">
+                                        <button type="submit"
+                                                class="btn btn-outline-danger btn-sm
+                                                {{if $post.Like.IsDisliked}}
+                                                custom-hover-dislike
+                                                {{end}}">
+                                            <i class="bi bi-hand-thumbs-down"></i>
+                                        </button>
+                                    </form>
+                                    <form action="/likeOrDislikePost" method="post" class="d-inline">
+                                        <input type="hidden" name="postID" value="{{$post.ID}}">
+                                        <input type="hidden" name="isLike" value="like">
+                                        <button type="submit"
+                                                class="btn btn-outline-success btn-sm
+                                                {{if $post.Like.IsLiked}}
+                                                custom-hover-like
+                                                {{end}}">
+                                            <i class="bi bi-hand-thumbs-up"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                                <button class="btn btn-primary btn-sm ms-2">View Comments</button>
+                            </div>
                         </div>
                     </div>
                 </div>
