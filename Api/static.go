@@ -42,3 +42,10 @@ func (s *server) loginPage(w http.ResponseWriter, r *http.Request) {
 		"isLoggedIn": isLoggedIn,
 	})
 }
+func (s *server) createPostPage(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn, _ := s.authenticateCookie(r)
+	renderTemplate(w, "createPost", map[string]interface{}{
+		"Title":      "Create Post",
+		"isLoggedIn": isLoggedIn,
+	})
+}

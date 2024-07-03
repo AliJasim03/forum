@@ -1,12 +1,18 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 	"strings"
 	"time"
 )
 
 // note: make sure to check if the user session expired or not
+type PostJson struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Gategories []string `json:"categories"`
+}
 
 func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(req)
@@ -20,32 +26,38 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	title := req.FormValue("title")
-	content := req.FormValue("content")
-	catType := req.Form["categories"]
+
+
+	//get them values the body request json
+	var post PostJson
+	err := json.NewDecoder(req.Body).Decode(&post)
+	if err != nil {
+		http.Error(res, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
 
 	// Check if required fields are provided
-	if title == "" || content == "" {
+	if post.Title == "" || post.Content == "" {
 		http.Error(res, "Title & content are required", http.StatusBadRequest)
 		return
 	}
 
 	//create the post
-	_, err := s.db.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, title, content)
+	_, err = s.db.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, post.Title, post.Content)
 	if err != nil {
 		http.Error(res, "Failed to create post", http.StatusInternalServerError)
 		return
 	}
 
 	var postID int
-	err = s.db.QueryRow("SELECT id FROM posts WHERE user_id = ? AND title = ? ORDER BY created_at DESC LIMIT 1", userID, title).Scan(&postID)
+	err = s.db.QueryRow("SELECT id FROM posts WHERE user_id = ? AND title = ? ORDER BY created_at DESC LIMIT 1", userID, post.Title).Scan(&postID)
 	if err != nil {
 		http.Error(res, "Failed to retrieve post ID", http.StatusInternalServerError)
 		return
 	}
 
 	//add the category
-	for _, ct := range catType {
+	for _, ct := range post.Gategories {
 		if ct != "" { // check if not empty
 			var categoryID int
 			err = s.db.QueryRow("SELECT id FROM categories WHERE name = ?", ct).Scan(&categoryID)
@@ -61,7 +73,8 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
-	
+	//return message ok to the client
+	res.WriteHeader(http.StatusOK)
 }
 
 func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
