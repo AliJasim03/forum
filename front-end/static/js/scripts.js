@@ -1,7 +1,24 @@
-/*!
-* Start Bootstrap - Small Business v5.0.6 (https://startbootstrap.com/template/small-business)
-* Copyright 2013-2023 Start Bootstrap
-* Licensed under MIT (https://github.com/StartBootstrap/startbootstrap-small-business/blob/master/LICENSE)
-*/
-// This file is intentionally blank
-// Use this file to add JavaScript to your project
+function fetchData() {
+            event.preventDefault(); // Prevent the default form submission
+            var email = document.getElementById('email').value;
+            var password = document.getElementById('password').value;
+            $.ajax({
+                url: "/loginAction",
+                type: "POST",
+                data: JSON.stringify({
+                    email: email,
+                    password: password
+                }),
+                contentType: "application/json",
+                success: function(data) {
+                    window.location.href = "/login";
+                },
+                error: function(data) {
+                    $("#error").html(data.responseText); // Assuming your server sends plain text error messages
+                    $("#error").show();
+                }
+            });
+
+}
+
+
