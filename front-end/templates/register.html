@@ -1,27 +1,25 @@
 {{define "content"}}
+<script src="front-end/static/js/scripts.js"></script>
 <div class="container px-4 px-lg-5">
-
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h2 class="text-center mt-5 mb-4">Register</h2>
-            <form action="registerAction" method="post">
-                <div class="form-group mb-3">
-                    <label for="email">Email address</label>
-                    <input type="email" class="form-control" name="email" id="email" placeholder="Enter email">
-                </div>
-                <div class="form-group mb-3">
-                    <label for="username">Username</label>
-                    <input type="text" class="form-control" name="username" id="username" placeholder="Enter username">
-                </div>
-                <div class="form-group mb-3">
-                    <label for="password">Password</label>
-                    <input type="password" class="form-control" name="password" id="password" placeholder="Password">
-                </div>
-                <button type="submit" class="btn btn-primary btn-block">Register</button>
-            </form>
+            <div class="alert alert-danger d-none" id="error"></div>
+            <div class="form-group mb-3">
+                <label for="email">Email address</label>
+                <input type="email" class="form-control" name="email" id="email" placeholder="Enter email">
+            </div>
+            <div class="form-group mb-3">
+                <label for="username">Username</label>
+                <input type="text" class="form-control" name="username" id="username" placeholder="Enter username">
+            </div>
+            <div class="form-group mb-3">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password" id="password" placeholder="Password">
+            </div>
+            <button type="submit" onclick="registerAction()" class="btn btn-primary btn-block">Register</button>
         </div>
     </div>
-    </div>
-    <br>
-
+</div>
+<br>
 {{end}}

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"time"
@@ -8,6 +9,17 @@ import (
 	"github.com/gofrs/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type LoginJson struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type RegisterJson struct {
+	Email    string `json:"email"`
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
 
 var emptyCookie = &http.Cookie{
 	Name:     "token", //l don't if l should change name or not because it same to the cookie of token
@@ -24,12 +36,15 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	email := req.FormValue("email")
-	username := req.FormValue("username")
-	password := req.FormValue("password")
+	var registration RegisterJson
+	err := json.NewDecoder(req.Body).Decode(&registration)
+	if err != nil {
+		http.Error(res, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
 
 	// check if all field used
-	if email == "" || username == "" || password == "" {
+	if registration.Email == "" || registration.Username == "" || registration.Password == "" {
 		http.Error(res, "missing required fields", http.StatusBadRequest)
 		return
 	}
@@ -37,7 +52,7 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 	// Check if the email is already used before
 	var exists bool
 	query := `SELECT EXISTS(SELECT 1 FROM users WHERE email = ? LIMIT 1)`
-	err := s.db.QueryRow(query, email).Scan(&exists)
+	err = s.db.QueryRow(query, registration.Email).Scan(&exists)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -49,21 +64,21 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 	}
 	// Check if the name is already used before
 	query = `SELECT EXISTS(SELECT 1 FROM users WHERE username = ? LIMIT 1)`
-	err = s.db.QueryRow(query, username).Scan(&exists)
+	err = s.db.QueryRow(query, registration.Username).Scan(&exists)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
 	}
 
 	//hash the pass to store it
-	hashPass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hashPass, err := bcrypt.GenerateFromPassword([]byte(registration.Password), bcrypt.DefaultCost)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
 	}
 
 	//insert data
-	_, err = s.db.Exec("INSERT INTO users (email, username, password)VALUES(?, ?, ?)", email, username, hashPass)
+	_, err = s.db.Exec("INSERT INTO users (email, username, password)VALUES(?, ?, ?)", registration.Email, registration.Username, hashPass)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -71,7 +86,7 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 
 	//get the user id
 	var userID int
-	err = s.db.QueryRow("SELECT id FROM users WHERE username = ? and email = ?", username, email).Scan(&userID)
+	err = s.db.QueryRow("SELECT id FROM users WHERE username = ? and email = ?", registration.Username, registration.Email).Scan(&userID)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
@@ -93,24 +108,30 @@ func (s *server) login(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	email := req.FormValue("email")
-	password := req.FormValue("password")
+	//get them values the body request json
+	var login LoginJson
+
+	err := json.NewDecoder(req.Body).Decode(&login)
+	if err != nil {
+		http.Error(res, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
 
 	// check if all field used
-	if email == "" || password == "" {
+	if login.Email == "" || login.Password == "" {
 		http.Error(res, "missing required fields", http.StatusBadRequest)
 		return
 	}
 
 	var storedPass string
 	var userID int
-	err := s.db.QueryRow("SELECT id, password FROM users WHERE email = ?", email).Scan(&userID, &storedPass)
+	err = s.db.QueryRow("SELECT id, password FROM users WHERE email = ?", login.Email).Scan(&userID, &storedPass)
 	if err != nil {
 		http.Error(res, "invalild username or password", http.StatusUnauthorized)
 		return
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(storedPass), []byte(password))
+	err = bcrypt.CompareHashAndPassword([]byte(storedPass), []byte(login.Password))
 	if err != nil {
 		http.Error(res, "invalild username or password", http.StatusUnauthorized)
 		return
@@ -123,7 +144,6 @@ func (s *server) login(res http.ResponseWriter, req *http.Request) {
 	}
 
 	http.SetCookie(res, &cookie)
-
 	http.Redirect(res, req, "/", http.StatusSeeOther)
 
 }

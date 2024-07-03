@@ -4,6 +4,7 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <h2 class="text-center mt-5 mb-4">Login</h2>
+            <div class="alert alert-danger d-none" id="error"></div>
             <div class="form-group mb-3">
                 <label for="email">Email address</label>
                 <input type="email" class="form-control" name="email" id="email" placeholder="Enter email">
@@ -12,10 +13,39 @@
                 <label for="password">Password</label>
                 <input type="password" class="form-control" name="password" id="password" placeholder="Password">
             </div>
-            <button type="submit" onclick="fetchData()" class="btn btn-primary btn-block">Login</button>
+            <button type="submit" onclick="loginAction()" class="btn btn-primary btn-block">Login</button>
             <div id="error" style="display:none;color:red;"></div>
         </div>
     </div>
 </div>
+<script>
+    $(document).ready(function () {
+        $("button").click(function () {
+            debugger;
+            var title = $("#email").val();
+            var content = $("#password").val();
+            var data = JSON.stringify({
+                email: email,
+                password: password
+            });
+            $.ajax({
+                url: "/loginAction",
+                type: "POST",
+                contentType: "application/json",
+                data: data,  // Send the JSON data object
+                success: function (response) {
+                    debugger;
+                    window.location.href = "/";  // Redirect on success
+                },
+                error: function (error) {
+                    debugger
+                    $("#error").html(error.responseText);  // Display error message
+                    $("#error").show();
+                    $("#error").removeClass("d-none");
+                }
+            });
+        });
+    });
+</script>
 <br>
 {{end}}
