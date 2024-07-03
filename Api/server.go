@@ -37,7 +37,8 @@ func (s *server) Init() {
 	
 	s.mux.HandleFunc("/logout", s.logout)
 
-	s.mux.HandleFunc("/creatPost", s.createPost)
+	s.mux.HandleFunc("/createPost", s.createPostPage)
+	s.mux.HandleFunc("/createPostAction", s.createPost)
 
 	s.mux.HandleFunc("/likeOrDislikePost", s.likeDislikePost)
 

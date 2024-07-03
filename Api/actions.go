@@ -9,7 +9,7 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	//get the cookie to use token to get userID
 	isLoggedIn, userID := s.authenticateCookie(r)
 	if !isLoggedIn {
-		http.Redirect(w, r, "/login", http.StatusUnauthorized)
+		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
 	var postID = r.FormValue("postID")
