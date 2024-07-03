@@ -1,9 +1,9 @@
 package api
 
 import (
+	backend "forum/db"
 	"html/template"
 	"net/http"
-	backend "forum/db"
 )
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
@@ -45,7 +45,7 @@ func (s *server) loginPage(w http.ResponseWriter, r *http.Request) {
 }
 func (s *server) createPostPage(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, _ := s.authenticateCookie(r)
-	categories := backend.GatGategories(s.db)
+	categories := backend.GetCategories(s.db)
 	renderTemplate(w, "createPost", map[string]interface{}{
 		"Title":      "Create Post",
 		"isLoggedIn": isLoggedIn,

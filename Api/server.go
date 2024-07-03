@@ -52,7 +52,7 @@ func (s *server) Init() {
 
 func (s *server) getPosts(user int, filter string) []backend.Post {
 	var posts []backend.Post
-	backend.GetPosts(s.db, user, &posts, filter)
+	backend.GetPosts(s.db, user, &posts, filter)	
 	return posts
 }
 

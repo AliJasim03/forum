@@ -27,7 +27,7 @@ type Like struct {
 	IsDisliked    bool
 }
 
-type Gategories struct {
+type Categories struct {
 	ID   int
 	Name string
 }

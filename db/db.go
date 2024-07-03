@@ -242,16 +242,16 @@ func CreatePost(db *sql.DB, userID int, post PostJson) bool {
 	return true
 }
 
-func GatGategories(db *sql.DB) []Gategories {
-	var categories []Gategories
-	rows, err := db.Query("SELECT (id,name) FROM categories")
+func GetCategories(db *sql.DB) []Categories {
+	var categories []Categories
+	rows, err := db.Query("SELECT id, name FROM categories")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 
 	for rows.Next() {
-		category := Gategories{}
+		category := Categories{}
 		err = rows.Scan(&category.ID, &category.Name)
 		if err != nil {
 			log.Fatal(err)
