@@ -5,48 +5,61 @@
         <div class="col-md-6">
             <h2 class="text-center mt-5 mb-4">Create Post</h2>
             <div class="alert alert-danger d-none" id="error"></div>
-                <div class="form-group mb-3">
-                    <label for="title">Title</label>
-                    <input required type="text" class="form-control" name="title" id="title" placeholder="Enter title">
+            <div class="alert alert-success d-none" id="success"></div>
+            <div class="form-group mb-3">
+                <label for="title">Title</label>
+                <input required type="text" class="form-control" name="title" id="title" placeholder="Enter title">
+            </div>
+            <div class="form-group mb-3">
+                <label for="content">Content</label>
+                <textarea required class="form-control" name="content" id="content" rows="5" placeholder="Enter content"></textarea>
                 </div>
-                <div class="form-group mb-3">
-                    <label for="content">Content</label>
-                    <textarea required class="form-control" name="content" id="content" rows="5" placeholder="Enter content"></textarea>
-                </div>
-                <button type="button" onclick="" class="btn btn-primary btn-block">Create Post</button>
+            <div class="form-group mb-3">
+                <label for="gategories">Gategories</label>
+                <select class="form-control" name="gategories" id="gategories">
+                    {{range .Gategories}}
+                    <option value="{{.ID}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </div>
+            <button type="button" onclick="creatPost()" class="btn btn-primary btn-block">Create Post</button>
         </div>
     </div>
 </div>
 <br>
 <script>
-    $(document).ready(function () {
-        $("button").click(function () {
-            debugger;
-            var title = $("#title").val();
-            var content = $("#content").val();
-            var data = JSON.stringify({
-                Title: title,
-                Content: content,
-                Gategories: []
-            });
-            $.ajax({
-                url: "/createPostAction",
-                type: "POST",
-                contentType: "application/json",
-                data: data,  // Send the JSON data object
-                success: function (response) {
-                    debugger;
-                    window.location.href = "/";  // Redirect on success
-                },
-                error: function (error) {
-                    debugger
-                    $("#error").html(error.responseText);  // Display error message
-                    $("#error").show();
-                    $("#error").removeClass("d-none");
-                }
-            });
-
+    function creatPost() {
+        var title = $("#title").val();
+        var content = $("#content").val();
+        var data = JSON.stringify({
+            Title: title,
+            Content: content,
+            Gategories: []
         });
+        $.ajax({
+            url: "/createPostAction",
+            type: "POST",
+            contentType: "application/json",
+            data: data,  // Send the JSON data object
+            success: function (response) {
+                $("#success").html("Account Created Successfully");  // Display success message
+                $("#success").show();
+                $("#success").removeClass("d-none");
+            },
+            error: function (error) {
+                $("#error").html(error.responseText);  // Display error message
+                $("#error").show();
+                $("#error").removeClass("d-none");
+            }
+        });
+    }
+    </script>
+<script>
+    $("input").on("keypress", function () {
+        $("#error").hide();
+        $("#success").hide();
+        $("#error").addClass("d-none");
+        $("#success").addClass("d-none");
     });
 </script>
 {{end}}

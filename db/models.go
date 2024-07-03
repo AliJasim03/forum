@@ -26,3 +26,13 @@ type Like struct {
 	IsLiked       bool
 	IsDisliked    bool
 }
+
+type Gategories struct {
+	ID   int
+	Name string
+}
+type PostJson struct {
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Gategories []string `json:"categories"`
+}
