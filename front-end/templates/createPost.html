@@ -15,4 +15,38 @@
                 </div>
                 <button type="button" onclick="" class="btn btn-primary btn-block">Create Post</button>
         </div>
-    </
+    </div>
+</div>
+<br>
+<script>
+    $(document).ready(function () {
+        $("button").click(function () {
+            debugger;
+            var title = $("#title").val();
+            var content = $("#content").val();
+            var data = JSON.stringify({
+                Title: title,
+                Content: content,
+                Gategories: []
+            });
+            $.ajax({
+                url: "/createPostAction",
+                type: "POST",
+                contentType: "application/json",
+                data: data,  // Send the JSON data object
+                success: function (response) {
+                    debugger;
+                    window.location.href = "/";  // Redirect on success
+                },
+                error: function (error) {
+                    debugger
+                    $("#error").html(error.responseText);  // Display error message
+                    $("#error").show();
+                    $("#error").removeClass("d-none");
+                }
+            });
+
+        });
+    });
+</script>
+{{end}}
