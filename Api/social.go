@@ -9,15 +9,14 @@ import (
 // note: make sure to check if the user session expired or not
 
 func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
-	if req.Method != http.MethodPost {
-		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
+	isLoggedIn, userID := s.authenticateCookie(req)
+	if !isLoggedIn {
+		http.Redirect(res, req, "/login", http.StatusUnauthorized)
 		return
 	}
 
-	//get the cookie to use token to get userID
-	cookie, err := req.Cookie("token")
-	if err != nil {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
+	if req.Method != http.MethodPost {
+		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -31,25 +30,8 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	sessionToken := cookie.Value
-	var userID int
-	var expiresAt time.Time
-
-	//get the user_id of who will post
-	err = s.db.QueryRow("SELECT user_id, expires_at FROM sessions WHERE session_token = ?", sessionToken).Scan(&userID, &expiresAt)
-	if err != nil || expiresAt.Before(time.Now()) {
-		http.Error(res, "Unauthorized", http.StatusUnauthorized)
-		return
-	}
-
-	//check if the session already end or not
-	if expiresAt.Before(time.Now()) {
-		http.Error(res, "Session expired", http.StatusUnauthorized)
-		return
-	}
-
 	//create the post
-	_, err = s.db.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, title, content)
+	_, err := s.db.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, title, content)
 	if err != nil {
 		http.Error(res, "Failed to create post", http.StatusInternalServerError)
 		return
@@ -79,6 +61,7 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 			}
 		}
 	}
+	
 }
 
 func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
