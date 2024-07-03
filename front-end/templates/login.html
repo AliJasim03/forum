@@ -18,34 +18,5 @@
         </div>
     </div>
 </div>
-<script>
-    $(document).ready(function () {
-        $("button").click(function () {
-            debugger;
-            var title = $("#email").val();
-            var content = $("#password").val();
-            var data = JSON.stringify({
-                email: email,
-                password: password
-            });
-            $.ajax({
-                url: "/loginAction",
-                type: "POST",
-                contentType: "application/json",
-                data: data,  // Send the JSON data object
-                success: function (response) {
-                    debugger;
-                    window.location.href = "/";  // Redirect on success
-                },
-                error: function (error) {
-                    debugger
-                    $("#error").html(error.responseText);  // Display error message
-                    $("#error").show();
-                    $("#error").removeClass("d-none");
-                }
-            });
-        });
-    });
-</script>
 <br>
 {{end}}

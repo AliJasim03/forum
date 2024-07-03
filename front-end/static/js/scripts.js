@@ -16,6 +16,8 @@ function loginAction() {
         error: function (data) {
             $("#error").html(data.responseText); // Assuming your server sends plain text error messages
             $("#error").show();
+            $("#error").removeClass("d-none");
+            $("#error").fadeOut(5000);
         }
     });
 }
@@ -25,6 +27,7 @@ function registerAction() {
     var email = document.getElementById('email').value;
     var username = document.getElementById('username').value;
     var password = document.getElementById('password').value;
+
     $.ajax({
         url: "/registerAction",
         type: "POST",
@@ -35,11 +38,15 @@ function registerAction() {
         }),
         contentType: "application/json",
         success: function (data) {
+            debugger;
             window.location.href = "/";
         },
         error: function (data) {
+            debugger;
             $("#error").html(data.responseText); // Assuming your server sends plain text error messages
             $("#error").show();
+            $("#error").removeClass("d-none");
+            $("#error").fadeOut(5000);
         }
     });
 }
