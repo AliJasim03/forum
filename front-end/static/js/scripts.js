@@ -51,6 +51,37 @@ function registerAction() {
     });
 }
 
+{/* <form action="/likeOrDislikePost" method="post" class="d-inline">
+<input type="hidden" name="postID" value="{{$post.ID}}">
+<input type="hidden" name="isLike" value="like">
+<button type="submit" class="btn btn-outline-success btn-sm
+                {{if $post.Like.IsLiked}}
+                custom-hover-like
+                {{end}}">
+    <i class="bi bi-hand-thumbs-up"></i>
+</button>
+</form> */}
 
-
+function likeDislikePost(postID, isLike) {
+    $.ajax({
+        url: "/likeOrDislikePost",
+        type: "POST",
+        data: JSON.stringify({
+            postID: postID,
+            isLike: isLike
+        }),
+        contentType: "application/json",
+        success: function (data) {
+            debugger;
+            window.location.href = "/";
+        },
+        error: function (data) {
+            debugger;
+            $("#error").html(data.responseText); // Assuming your server sends plain text error messages
+            $("#error").show();
+            $("#error").removeClass("d-none");
+            $("#error").fadeOut(5000);
+        }
+    });
+}
 

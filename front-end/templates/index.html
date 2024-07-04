@@ -1,18 +1,9 @@
 {{define "content"}}
+<script src="front-end/static/js/scripts.js"></script>
 <!-- Page Content-->
 <div class="container px-4 px-lg-5">
     <!-- Heading Row-->
-    <div class="row gx-4 gx-lg-5 align-items-center my-5">
-        <div class="col-lg-7"><img class="img-fluid rounded mb-4 mb-lg-0"
-                src="https://dummyimage.com/900x400/dee2e6/6c757d.jpg" alt="..." /></div>
-        <div class="col-lg-5">
-            <h1 class="font-weight-light">Business Name or Tagline</h1>
-            <p>This is a template that is great for small businesses. It doesn't have too much fancy flare to it,
-                but it makes a great use of the standard Bootstrap core components. Feel free to use this template
-                for any project you want!</p>
-            <a class="btn btn-primary" href="#!">Call to Action!</a>
-        </div>
-    </div>
+
     <!-- Call to Action-->
     <div class="card text-white bg-secondary my-5 py-4 text-center">
         <div class="card-body">
@@ -39,26 +30,22 @@
                     </div>
                     <div class="row align-items-center">
                         <div class="col">
-                            <form action="/likeOrDislikePost" method="post" class="d-inline">
-                                <input type="hidden" name="postID" value="{{$post.ID}}">
-                                <input type="hidden" name="isLike" value="dislike">
-                                <button type="submit" class="btn btn-outline-danger btn-sm
+                                <input type="hidden" name="postID" id="postID" value="{{$post.ID}}">
+                                <input type="hidden" name="isLike" id="isLike" value="dislike">
+                                <button type="submit" onclick="likeDislikePost('{{$post.ID}}','dislike')" class="btn btn-outline-danger btn-sm
                                                 {{if $post.Like.IsDisliked}}
                                                 custom-hover-dislike
                                                 {{end}}">
                                     <i class="bi bi-hand-thumbs-down"></i>
                                 </button>
-                            </form>
-                            <form action="/likeOrDislikePost" method="post" class="d-inline">
                                 <input type="hidden" name="postID" value="{{$post.ID}}">
                                 <input type="hidden" name="isLike" value="like">
-                                <button type="submit" class="btn btn-outline-success btn-sm
+                                <button type="submit" onclick="likeDislikePost('{{$post.ID}}','like')" class="btn btn-outline-success btn-sm
                                                 {{if $post.Like.IsLiked}}
                                                 custom-hover-like
                                                 {{end}}">
                                     <i class="bi bi-hand-thumbs-up"></i>
                                 </button>
-                            </form>
                         </div>
                         <button class="btn btn-primary btn-sm ms-2">View Comments</button>
                     </div>

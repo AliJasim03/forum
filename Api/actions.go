@@ -2,44 +2,52 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	backend "forum/db"
 	"net/http"
 )
 
+type LikeDisJson struct {
+	PostID string `json:"postID"`
+	IsLike string `json:"isLike"`
+}
+
 func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	//get the cookie to use token to get userID
 	isLoggedIn, userID := s.authenticateCookie(r)
+
+	var LikeDis LikeDisJson
+
+	err := json.NewDecoder(r.Body).Decode(&LikeDis)
+	if err != nil {
+		http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
+
 	if !isLoggedIn {
 		http.Redirect(w, r, "/login", http.StatusSeeOther)
 		return
 	}
-	var postID = r.FormValue("postID")
-	if postID == "" {
-		http.Error(w, "missing Post ID", http.StatusBadRequest)
-		return
-	}
-	var action = r.FormValue("isLike")
+
+	var action = LikeDis.IsLike
 	if action == "" {
 		http.Error(w, "missing like or dislike", http.StatusBadRequest)
 		return
 	}
 	var isLike = false
-	if action == "like" {
+	if LikeDis.IsLike == "like" {
 		isLike = true
-	} else if action == "dislike" {
+	} else if LikeDis.IsLike == "dislike" {
 		isLike = false
 	}
 	//save like to the database for the user
-	ok := backend.LikeDislikePost(s.db, userID, postID, isLike)
+	ok := backend.LikeDislikePost(s.db, userID, LikeDis.PostID, isLike)
 	if ok {
 		http.Redirect(w, r, "/", http.StatusSeeOther)
 		return
 	}
 	http.Error(w, "can't make like", http.StatusInternalServerError)
 }
-
-
-
 
 func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(req)
@@ -52,8 +60,6 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-
-
 
 	//get them values the body request json
 	var post backend.PostJson
