@@ -86,6 +86,7 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 
 	//get the user id
 	var userID int
+	err = s.db.QueryRow("SELECT id FROM users WHERE email = ?", registration.Email).Scan(&userID)
 	if err != nil {
 		http.Error(res, "Server error", http.StatusInternalServerError)
 		return
