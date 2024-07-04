@@ -63,6 +63,7 @@ function registerAction() {
 </form> */}
 
 function likeDislikePost(postID, isLike) {
+    event.preventDefault(); //  the default form submission
     $.ajax({
         url: "/likeOrDislikePost",
         type: "POST",
@@ -73,7 +74,7 @@ function likeDislikePost(postID, isLike) {
         contentType: "application/json",
         success: function (data) {
             debugger;
-            window.location.href = "/";
+            // window.location.href = "/";
         },
         error: function (data) {
             debugger;
