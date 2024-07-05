@@ -13,7 +13,7 @@ type PostJson struct {
 	Categories []string `json:"categories"`
 }
 
-func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
+func (s *server) createComment_tbd(res http.ResponseWriter, req *http.Request) {
 	if req.Method != http.MethodPost {
 		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
 		return

@@ -4,6 +4,7 @@
 <div class="container px-4 px-lg-5">
     <!-- Post Content-->
     <div class="row gx-4 gx-lg-5 justify-content-center">
+                    <div class="alert alert-danger d-none" id="error"></div>
         <div class="col-lg-8">
             <!-- Title-->
             <h1 class="mt-4">{{.Post.Title}}</h1>
@@ -15,21 +16,38 @@
                 <a href="#!">{{.Post.CreatedBy}} - {{.Post.CreatedOn}}</a>
             </p>
             <hr>
-            <!-- Date/Time-->
-            <p>Posted on {{.Post.Date}}</p>
-            <hr>
             <!-- Post Content-->
             <p class="lead">{{.Post.Content}}</p>
             <hr>
             <!-- Comments Section -->
             <h2>Comments</h2>
-            {{range .Comments}}
-            <div class="card mb-4">
+            {{range $comment .Post.Comments}}
+            <div class="card mb-4" id="{{$comment.ID}}">
                 <div class="card-body">
-                    <p class="card-text">{{.Text}}</p>
+                    <p class="card-text">{{$comment.Content}}</p>
                 </div>
                 <div class="card-footer text-muted">
-                    Posted by {{.Author}} on {{.Date}}
+                    Posted by {{$comment.CreatedBy}} on {{$comment.CreatedOn}}
+                    <div class="col">
+                        <input type="hidden" name="commentID" id="commentID" value="{{$commentID.ID}}">
+                        <input type="hidden" name="isLike" id="isLike" value="dislike">
+                        <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','dislike')"
+                            class="btn btn-outline-danger btn-sm
+                                                                                                                                        {{if $comment.Like.IsDisliked}}
+                                                                                                                                        custom-hover-dislike
+                                                                                                                                        {{end}}">
+                            <i class="bi bi-hand-thumbs-down"></i>
+                        </button>
+                        <input type="hidden" name="commentID" value="{{$comment.ID}}">
+                        <input type="hidden" name="isLike" value="like">
+                        <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','like')"
+                            class="btn btn-outline-success btn-sm
+                                                                                                                                        {{if $comment.Like.IsLiked}}
+                                                                                                                                        custom-hover-like
+                                                                                                                                        {{end}}">
+                            <i class="bi bi-hand-thumbs-up"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
             {{end}}

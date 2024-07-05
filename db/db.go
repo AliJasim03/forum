@@ -260,3 +260,52 @@ func GetCategories(db *sql.DB) []Categories {
 	}
 	return categories
 }
+
+func CreateComment(db *sql.DB, userID int, comment CommentJson) bool {
+	// create the comment
+	_, err := db.Exec("INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)", comment.PostID, userID, comment.Comment, time.Now().Format("2006-01-02 15:04:05"))
+	if err != nil {
+		return false
+	}
+	return true
+}
+
+func LikeDislikeComment(db *sql.DB, userID int, commentID string, isLike bool) bool {
+	// select and checked the saved like
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM likes WHERE user_id = ? AND comment_id = ? LIMIT 1)", userID, commentID).Scan(&exists)
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	if exists {
+		// reverse the value of isliked
+		var oldVal bool
+		err := db.QueryRow("SELECT is_like FROM likes WHERE user_id = ? AND comment_id = ?", userID, commentID).Scan(&oldVal)
+		if err != nil {
+			log.Fatal(err)
+			return false
+		}
+		// delete if the value is the same
+		if oldVal == isLike {
+			_, err = db.Exec("DELETE FROM likes WHERE user_id = ? AND comment_id = ?", userID, commentID)
+			if err != nil {
+				log.Fatal(err)
+				return false
+			}
+			return true
+		}
+		_, err = db.Exec("UPDATE likes SET is_like = ? WHERE user_id = ? AND comment_id = ?", !oldVal, userID, commentID)
+		if err != nil {
+			log.Fatal(err)
+			return false
+		}
+		return true
+	}
+	_, err = db.Exec("INSERT INTO likes (user_id, comment_id, is_like, created_at) VALUES(?,?,?,?)", userID, commentID, isLike, time.Now().Format("2006-01-02 15:04:05"))
+	if err != nil {
+		log.Fatal(err)
+		return false
+	}
+	return true
+}

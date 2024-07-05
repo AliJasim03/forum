@@ -36,3 +36,8 @@ type PostJson struct {
 	Content string `json:"content"`
 	Gategories []string `json:"categories"`
 }
+
+type CommentJson struct {
+	PostID string `json:"PostID"`
+	Comment string `json:"comment"`
+}

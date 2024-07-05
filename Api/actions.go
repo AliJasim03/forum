@@ -82,3 +82,71 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 	//return message ok to the client
 	res.WriteHeader(http.StatusOK)
 }
+
+func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
+	if req.Method != http.MethodPost {
+		http.Error(res, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	isLoggedIn, userID := s.authenticateCookie(req)
+	if !isLoggedIn {
+		http.Redirect(res, req, "/login", http.StatusUnauthorized)
+		return
+	}
+	
+	var comment backend.CommentJson
+	err := json.NewDecoder(req.Body).Decode(&comment)
+	if err != nil {
+		http.Error(res, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
+	if comment.Comment == "" || comment.PostID == "" {
+		http.Error(res, "PostID & comment are required", http.StatusBadRequest)
+		return
+	}
+	ok := backend.CreateComment(s.db, userID, comment)
+	if !ok {
+		http.Error(res, "Failed to create comment", http.StatusInternalServerError)
+		return
+	}
+	res.WriteHeader(http.StatusOK)
+}
+
+
+
+func (s *server) likeDislikeComment(w http.ResponseWriter, r *http.Request) {
+	//get the cookie to use token to get userID
+	isLoggedIn, userID := s.authenticateCookie(r)
+
+	var LikeDis LikeDisJson
+
+	err := json.NewDecoder(r.Body).Decode(&LikeDis)
+	if err != nil {
+		http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
+
+	if !isLoggedIn {
+		http.Error(w, "Please log in to continue", http.StatusBadRequest)
+		return
+	}
+
+	var action = LikeDis.IsLike
+	if action == "" {
+		http.Error(w, "missing like or dislike", http.StatusBadRequest)
+		return
+	}
+	var isLike = false
+	if LikeDis.IsLike == "like" {
+		isLike = true
+	} else if LikeDis.IsLike == "dislike" {
+		isLike = false
+	}
+	//save like to the database for the user
+	ok := backend.LikeDislikeComment(s.db, userID, LikeDis.PostID, isLike)
+	if ok {
+		http.Redirect(w, r, "/", http.StatusSeeOther)
+		return
+	}
+	http.Error(w, "can't make like", http.StatusInternalServerError)
+}

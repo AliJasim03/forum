@@ -85,3 +85,50 @@ function likeDislikePost(postID, isLike) {
     });
 }
 
+
+function likeDislikeComment(commentID, isLike) {
+    event.preventDefault(); // Prevent the default form submission
+    $.ajax({
+        url: "/likeOrDislikeComment",
+        type: "POST",
+        data: JSON.stringify({
+            commentID: commentID,
+            isLike: isLike
+        }),
+        contentType: "application/json",
+        success: function (data) {
+        },
+        error: function (data) {
+            alert(data.responseText);
+            $("#error").html(data.responseText); // Assuming your server sends plain text error messages
+            $("#error").show();
+            $("#error").removeClass("d-none");
+            $("#error").fadeOut(5000);
+        }
+    });
+}
+
+function createComment(postID) {
+    event.preventDefault(); // Prevent the default form submission
+    var comment = $("#comment").val();
+    $.ajax({
+        url: "/createComment",
+        type: "POST",
+        data: JSON.stringify({
+            postID: postID,
+            comment: comment
+        }),
+        contentType: "application/json",
+        success: function (data) {
+            alert("Comment created successfully");
+        },
+        error: function (data) {
+            alert(data.responseText);
+            $("#error").html(data.responseText); // Assuming your server sends plain text error messages
+            $("#error").show();
+            $("#error").removeClass("d-none");
+            $("#error").fadeOut(5000);
+        }
+    });
+}
+
