@@ -1,0 +1,52 @@
+{{define "content"}}
+<script src="front-end/static/js/scripts.js"></script>
+<!-- Page Content-->
+<div class="container px-4 px-lg-5">
+    <!-- Post Content-->
+    <div class="row gx-4 gx-lg-5 justify-content-center">
+        <div class="col-lg-8">
+            <!-- Title-->
+            <h1 class="mt-4">{{.Post.Title}}</h1>
+            <!-- Content-->
+            <p class="lead">{{.Post.Content}}</p>
+            <!-- Author-->
+            <p class="lead">
+                by
+                <a href="#!">{{.Post.CreatedBy}} - {{.Post.CreatedOn}}</a>
+            </p>
+            <hr>
+            <!-- Date/Time-->
+            <p>Posted on {{.Post.Date}}</p>
+            <hr>
+            <!-- Post Content-->
+            <p class="lead">{{.Post.Content}}</p>
+            <hr>
+            <!-- Comments Section -->
+            <h2>Comments</h2>
+            {{range .Comments}}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <p class="card-text">{{.Text}}</p>
+                </div>
+                <div class="card-footer text-muted">
+                    Posted by {{.Author}} on {{.Date}}
+                </div>
+            </div>
+            {{end}}
+            <hr>
+            <!-- Comments Form-->
+            <div class="card my-4">
+                <h5 class="card-header">Leave a Comment:</h5>
+                <div class="card-body">
+                    <form>
+                        <div class="form-group mb-3">
+                            <textarea class="form-control" rows="3" placeholder="Comment"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

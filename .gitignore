@@ -26,4 +26,4 @@ go.work.sum
 __debug_bin*
 
 # form db caused a lot of confilct remove when done with form db
-db/form.db
+db/forum.db

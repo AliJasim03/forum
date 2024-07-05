@@ -73,11 +73,10 @@ function likeDislikePost(postID, isLike) {
         }),
         contentType: "application/json",
         success: function (data) {
-            debugger;
-            // window.location.href = "/";
         },
         error: function (data) {
-            debugger;
+
+            alert(data.responseText);
             $("#error").html(data.responseText); // Assuming your server sends plain text error messages
             $("#error").show();
             $("#error").removeClass("d-none");

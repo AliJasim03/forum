@@ -24,7 +24,7 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !isLoggedIn {
-		http.Redirect(w, r, "/login", http.StatusSeeOther)
+		http.Error(w, "Please log in to continue", http.StatusBadRequest)
 		return
 	}
 
