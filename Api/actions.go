@@ -42,7 +42,14 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	//save like to the database for the user
 	ok := backend.LikeDislikePost(s.db, userID, LikeDis.PostID, isLike)
 	if ok {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+
+		isLiked := backend.KnowPostLike(s.db, userID, LikeDis.PostID)
+		//return data to the client that the like is success
+		w.Header().Set("Content-Type", "application/json")
+		//return isliked
+		json.NewEncoder(w).Encode(isLiked)
+		w.WriteHeader(http.StatusOK)
+	
 		return
 	}
 	http.Error(w, "can't make like", http.StatusInternalServerError)

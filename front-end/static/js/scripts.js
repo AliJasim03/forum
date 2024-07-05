@@ -61,21 +61,22 @@ function likeDislikePost(postID, isLike) {
             isLike: isLike
         }),
         contentType: "application/json",
-        success: function (data) {
+        success: function (data) { //data is returnin as string
             // Assuming the server response contains the updated like/dislike status
             // data should include fields like data.isLiked and data.isDisliked
-            const likeBtn = document.getElementById('like-btn-' + postID);
-            const dislikeBtn = document.getElementById('dislike-btn-' + postID);
+            // data should include fields like data.isLiked and data.isDisliked
+            const likeBtn = $('#like-btn-' + postID);
+            const dislikeBtn = $('#dislike-btn-' + postID);
 
-            if (data.isLiked) {
-                likeBtn.classList.add('custom-hover-like');
-                dislikeBtn.classList.remove('custom-hover-dislike');
-            } else if (data.isDisliked) {
-                likeBtn.classList.remove('custom-hover-like');
-                dislikeBtn.classList.add('custom-hover-dislike');
+            if (data === "liked") {
+                likeBtn.addClass('custom-hover-like');
+                dislikeBtn.removeClass('custom-hover-dislike');
+            } else if (data === "disliked") {
+                likeBtn.removeClass('custom-hover-like');
+                dislikeBtn.addClass('custom-hover-dislike');
             } else {
-                likeBtn.classList.remove('custom-hover-like');
-                dislikeBtn.classList.remove('custom-hover-dislike');
+                likeBtn.removeClass('custom-hover-like');
+                dislikeBtn.removeClass('custom-hover-dislike');
             }
         },
         error: function (data) {

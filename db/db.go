@@ -211,6 +211,19 @@ func LikeDislikePost(db *sql.DB, userID int, postID string, isLike bool) bool {
 	return true
 }
 
+func KnowPostLike(db *sql.DB, userID int, postID string) string {
+	var isLiked bool
+	err := db.QueryRow("SELECT is_like FROM likes WHERE user_id = ? AND post_id = ?", userID, postID).Scan(&isLiked)
+	if err != nil {
+		return "none"
+	}
+	if isLiked {
+		return "liked"
+	}
+	return "disliked"
+}
+
+
 func CreatePost(db *sql.DB, userID int, post PostJson) bool {
 	// create the post
 	_, err := db.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, post.Title, post.Content)
