@@ -3,7 +3,6 @@ package api
 import (
 	"database/sql"
 	"fmt"
-	backend "forum/db"
 	"log"
 	"net/http"
 	"os/exec"
@@ -29,6 +28,10 @@ func (s *server) Init() {
 
 	// Define routes
 	s.mux.HandleFunc("/", s.indexHandler)
+	s.mux.HandleFunc("/filterCreatedPost", s.filterCreatedPost)
+	s.mux.HandleFunc("/filterLikedPost", s.filterLikedPost)
+
+
 	s.mux.HandleFunc("/login", s.loginPage)
 	s.mux.HandleFunc("/loginAction", s.login)
 
@@ -54,11 +57,6 @@ func (s *server) Init() {
 	}
 }
 
-func (s *server) getPosts(user int, filter string) []backend.Post {
-	var posts []backend.Post
-	backend.GetPosts(s.db, user, &posts, filter)	
-	return posts
-}
 
 func open(url string) error {
 	var cmd string

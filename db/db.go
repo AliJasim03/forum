@@ -38,7 +38,7 @@ func initDB(db *sql.DB) *sql.DB {
 	return db
 }
 
-func GetPosts(db *sql.DB, user int, posts *[]Post, filter string) {
+func GetPosts(db *sql.DB, user int, posts *[]Post) {
 	rows, err := db.Query("SELECT * FROM posts")
 	if err != nil {
 		log.Fatal(err)

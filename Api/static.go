@@ -23,13 +23,51 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 
 func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(r)
+	var posts []backend.Post
+	backend.GetPosts(s.db, userID, &posts)	
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,
-		"Posts":      s.getPosts(userID, ""),
+		"Posts":      posts,
+	})
+}
+func (s *server) filterCreatedPost(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn, userID := s.authenticateCookie(r)
+	var posts []backend.Post
+	var filteredPosts []backend.Post
+	backend.GetPosts(s.db, userID, &posts)	
+	// filter the post that is created by the user
+	for i := 0; i < len(posts); i++ {
+		if posts[i].IsCreatedByUser {
+			filteredPosts = append(filteredPosts, posts[i])
+		}
+	}
+
+	renderTemplate(w, "index", map[string]interface{}{
+		"Title":      "Homepage",
+		"isLoggedIn": isLoggedIn,
+		"Posts":      filteredPosts,
 	})
 }
 
+func (s *server) filterLikedPost(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn, userID := s.authenticateCookie(r)
+	var posts []backend.Post
+	backend.GetPosts(s.db, userID, &posts)	
+	var filteredPosts []backend.Post
+	// filter the post that is created by the user
+	for i := 0; i < len(posts); i++ {
+		if posts[i].Like.IsLiked {
+			filteredPosts = append(filteredPosts, posts[i])
+		}
+	}
+
+	renderTemplate(w, "index", map[string]interface{}{
+		"Title":      "Homepage",
+		"isLoggedIn": isLoggedIn,
+		"Posts":      filteredPosts,
+	})
+}
 func (s *server) registerPage(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, _ := s.authenticateCookie(r)
 	renderTemplate(w, "register", map[string]interface{}{
