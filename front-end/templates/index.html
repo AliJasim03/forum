@@ -11,10 +11,22 @@
                 important information or display a clever tagline!</p>
         </div>
     </div>
+            <div class="form-group mb-3">
+                <label for="categories">Categories</label>
+                <select class="form-control" name="categories" id="categories">
+                    <option selected value="All">All</option>
+                    {{range .Categories}}
+                    <option value="{{.Name}}">{{.Name}}</option>
+                    {{end}}
+                </select>
+            </div>
     <!-- Content Row-->
     <div class="row gx-4 gx-lg-5">
         {{range $post := .Posts}}
-        <div class="col-md-4 mb-5" id="{{$post.ID}}">
+        <div class="col-md-4 mb-5 {{range $cat := $post.Categories}}
+                                                                                                                                        {{$cat}}
+                                                                                                                                        {{end}}"
+            id="{{$post.ID}}">
             <div class="card h-100">
                 <div class="card-body">
                     <h2 class="card-title">{{$post.Title}}</h2>
@@ -52,5 +64,20 @@
         {{end}}
     </div>
 </div>
-
+<script>
+    $("#categories").on("change", function () {
+        var category = $(this).val();
+        if (category === "All") {
+            $(".col-md-4").show();
+        } else {
+            $(".col-md-4").hide();
+            $("." + category).show();
+        }
+    }); 
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', (event) => {
+        document.getElementById('categories').value = 'All';
+    });
+</script>
 {{end}}

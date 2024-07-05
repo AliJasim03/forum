@@ -67,7 +67,7 @@
 <script>
     var postID = "{{.Post.ID}}";
     function submitComment() {
-        debugger
+
         var comment = $("#comment").val();
         var data = JSON.stringify({
             PostID: postID,
@@ -79,7 +79,6 @@
             contentType: "application/json",
             data: data,  // Send the JSON data object
             success: function (response) {
-                debugger
                 // Assuming commentText contains the text of the comment you want to add
                 $("#comment").val("");  // Clear the comment text area
                 addCommentToPage(response);
@@ -95,7 +94,7 @@
 
     // Function to add a comment to the page
     function addCommentToPage(comment) {
-        debugger;
+
         // Create a new div element for the comment
         var newCommentDiv = document.createElement("div");
         newCommentDiv.className = "card mb-4";

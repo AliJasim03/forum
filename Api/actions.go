@@ -48,7 +48,6 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		//return isliked
 		json.NewEncoder(w).Encode(isLiked)
-		w.WriteHeader(http.StatusOK)
 		return
 	}
 	http.Error(w, "can't make like", http.StatusInternalServerError)
@@ -119,7 +118,6 @@ func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
 	//return the comment to the client
 	res.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(res).Encode(retunedComment)
-	res.WriteHeader(http.StatusOK)
 }
 
 func (s *server) likeDislikeComment(w http.ResponseWriter, r *http.Request) {
@@ -157,8 +155,6 @@ func (s *server) likeDislikeComment(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		//return isliked
 		json.NewEncoder(w).Encode(isLiked)
-		w.WriteHeader(http.StatusOK)
-
 		return
 	}
 	http.Error(w, "can't make like", http.StatusInternalServerError)

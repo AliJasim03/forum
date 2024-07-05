@@ -24,36 +24,41 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(r)
 	var posts []backend.Post
-	backend.GetPosts(s.db, userID, &posts)	
+	backend.GetPosts(s.db, userID, &posts)
+	Gategories := backend.GetCategories(s.db)
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,
 		"Posts":      posts,
+		"Categories": Gategories,
 	})
 }
+
 func (s *server) filterCreatedPost(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(r)
 	var posts []backend.Post
 	var filteredPosts []backend.Post
-	backend.GetPosts(s.db, userID, &posts)	
+	backend.GetPosts(s.db, userID, &posts)
 	// filter the post that is created by the user
 	for i := 0; i < len(posts); i++ {
 		if posts[i].IsCreatedByUser {
 			filteredPosts = append(filteredPosts, posts[i])
 		}
 	}
+	Gategories := backend.GetCategories(s.db)
 
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,
 		"Posts":      filteredPosts,
+		"Categories": Gategories,
 	})
 }
 
 func (s *server) filterLikedPost(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(r)
 	var posts []backend.Post
-	backend.GetPosts(s.db, userID, &posts)	
+	backend.GetPosts(s.db, userID, &posts)
 	var filteredPosts []backend.Post
 	// filter the post that is created by the user
 	for i := 0; i < len(posts); i++ {
@@ -61,13 +66,16 @@ func (s *server) filterLikedPost(w http.ResponseWriter, r *http.Request) {
 			filteredPosts = append(filteredPosts, posts[i])
 		}
 	}
+	Gategories := backend.GetCategories(s.db)
 
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,
 		"Posts":      filteredPosts,
+		"Categories": Gategories,
 	})
 }
+
 func (s *server) registerPage(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, _ := s.authenticateCookie(r)
 	renderTemplate(w, "register", map[string]interface{}{

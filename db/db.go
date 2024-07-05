@@ -62,20 +62,28 @@ func GetPosts(db *sql.DB, user int, posts *[]Post) {
 
 	// get the categories of the post_categories
 	for i := range *posts {
-		rows, err := db.Query("SELECT name FROM categories INNER JOIN post_categories ON categories.id = post_categories.category_id WHERE post_categories.post_id = ?", (*posts)[i].ID)
+		rows, err := db.Query("SELECT c.name FROM categories c INNER JOIN post_categories pc ON c.id = pc.category_id WHERE pc.post_id = ?", (*posts)[i].ID)
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer rows.Close()
+
+		var categories []string
 		for rows.Next() {
 			var category string
 			err = rows.Scan(&category)
 			if err != nil {
 				log.Fatal(err)
 			}
-			(*posts)[i].Categories = append((*posts)[i].Categories, category)
+			categories = append(categories, category)
 		}
+		if err := rows.Err(); err != nil {
+			log.Fatal(err)
+		}
+		rows.Close()
+
+		(*posts)[i].Categories = categories
 	}
+
 	// get the likes and dislikes
 	for i := range *posts {
 		var likes, dislikes int
@@ -358,8 +366,8 @@ func CreatePost(db *sql.DB, userID int, post PostJson) bool {
 	return true
 }
 
-func GetCategories(db *sql.DB) []Categories {
-	var categories []Categories
+func GetCategories(db *sql.DB) []Category {
+	var categories []Category
 	rows, err := db.Query("SELECT id, name FROM categories")
 	if err != nil {
 		log.Fatal(err)
@@ -367,7 +375,7 @@ func GetCategories(db *sql.DB) []Categories {
 	defer rows.Close()
 
 	for rows.Next() {
-		category := Categories{}
+		category := Category{}
 		err = rows.Scan(&category.ID, &category.Name)
 		if err != nil {
 			log.Fatal(err)
@@ -381,9 +389,9 @@ func CreateComment(db *sql.DB, userID int, comment CommentJson) (bool, *Comment)
 	// create the comment
 	_, err := db.Exec("INSERT INTO comments (post_id, user_id, content, created_at) VALUES (?, ?, ?, ?)", comment.PostID, userID, comment.Comment, time.Now().Format("2006-01-02 15:04:05"))
 	if err != nil {
-		return false,nil
+		return false, nil
 	}
-	var commentDB = &Comment{}
+	commentDB := &Comment{}
 	err = db.QueryRow("SELECT id, post_id, user_id, content, created_at FROM comments WHERE user_id = ? AND content = ? ORDER BY created_at DESC LIMIT 1", userID, comment.Comment).Scan(&commentDB.ID, &commentDB.PostID, &commentDB.CreatedBy, &commentDB.Content, &commentDB.CreatedOn)
 
 	return true, commentDB
@@ -428,6 +436,7 @@ func LikeDislikeComment(db *sql.DB, userID int, commentID string, isLike bool) b
 	}
 	return true
 }
+
 func KnowCommentLike(db *sql.DB, userID int, commnetID string) string {
 	var isLiked bool
 	err := db.QueryRow("SELECT is_like FROM likes WHERE user_id = ? AND comment_id = ?", userID, commnetID).Scan(&isLiked)
