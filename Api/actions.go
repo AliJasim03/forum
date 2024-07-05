@@ -7,7 +7,7 @@ import (
 )
 
 type LikeDisJson struct {
-	PostID string `json:"postID"`
+	ID string `json:"ID"`
 	IsLike string `json:"isLike"`
 }
 
@@ -29,7 +29,7 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var action = LikeDis.IsLike
-	if action == "" {
+	if action == "" || LikeDis.ID == ""{
 		http.Error(w, "missing like or dislike", http.StatusBadRequest)
 		return
 	}
@@ -40,10 +40,10 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 		isLike = false
 	}
 	//save like to the database for the user
-	ok := backend.LikeDislikePost(s.db, userID, LikeDis.PostID, isLike)
+	ok := backend.LikeDislikePost(s.db, userID, LikeDis.ID, isLike)
 	if ok {
 
-		isLiked := backend.KnowPostLike(s.db, userID, LikeDis.PostID)
+		isLiked := backend.KnowPostLike(s.db, userID, LikeDis.ID)
 		//return data to the client that the like is success
 		w.Header().Set("Content-Type", "application/json")
 		//return isliked
@@ -111,11 +111,15 @@ func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "PostID & comment are required", http.StatusBadRequest)
 		return
 	}
-	ok := backend.CreateComment(s.db, userID, comment)
+	ok,retunedComment := backend.CreateComment(s.db, userID, comment)
 	if !ok {
 		http.Error(res, "Failed to create comment", http.StatusInternalServerError)
 		return
 	}
+
+	//return the comment to the client
+	res.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(res).Encode(retunedComment)
 	res.WriteHeader(http.StatusOK)
 }
 
@@ -138,8 +142,7 @@ func (s *server) likeDislikeComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var action = LikeDis.IsLike
-	if action == "" {
+	if LikeDis.IsLike == "" || LikeDis.ID == ""{
 		http.Error(w, "missing like or dislike", http.StatusBadRequest)
 		return
 	}
@@ -150,9 +153,15 @@ func (s *server) likeDislikeComment(w http.ResponseWriter, r *http.Request) {
 		isLike = false
 	}
 	//save like to the database for the user
-	ok := backend.LikeDislikeComment(s.db, userID, LikeDis.PostID, isLike)
+	ok := backend.LikeDislikeComment(s.db, userID, LikeDis.ID, isLike)
 	if ok {
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		isLiked := backend.KnowCommentLike(s.db, userID, LikeDis.ID)
+		//return data to the client that the like is success
+		w.Header().Set("Content-Type", "application/json")
+		//return isliked
+		json.NewEncoder(w).Encode(isLiked)
+		w.WriteHeader(http.StatusOK)
+	
 		return
 	}
 	http.Error(w, "can't make like", http.StatusInternalServerError)

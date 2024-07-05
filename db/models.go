@@ -8,10 +8,10 @@ type Post struct {
 	CreatedOn       string
 	Categories      []string
 	Like            Like
-	Comments        []Comments
+	Comments        []Comment
 	IsCreatedByUser bool
 }
-type Comments struct {
+type Comment struct {
 	ID              int
 	PostID          int
 	CreatedBy       string
@@ -32,12 +32,12 @@ type Categories struct {
 	Name string
 }
 type PostJson struct {
-	Title   string `json:"title"`
-	Content string `json:"content"`
+	Title      string   `json:"title"`
+	Content    string   `json:"content"`
 	Gategories []string `json:"categories"`
 }
 
 type CommentJson struct {
-	PostID string `json:"PostID"`
+	PostID  string `json:"PostID"`
 	Comment string `json:"comment"`
 }

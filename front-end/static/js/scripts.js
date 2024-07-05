@@ -57,21 +57,21 @@ function likeDislikePost(postID, isLike) {
         url: "/likeOrDislikePost",
         type: "POST",
         data: JSON.stringify({
-            postID: postID,
+            ID: postID,
             isLike: isLike
         }),
         contentType: "application/json",
-        success: function (data) { //data is returnin as string
+        success: function (response) { //data is returnin as string
             // Assuming the server response contains the updated like/dislike status
             // data should include fields like data.isLiked and data.isDisliked
             // data should include fields like data.isLiked and data.isDisliked
             const likeBtn = $('#like-btn-' + postID);
             const dislikeBtn = $('#dislike-btn-' + postID);
 
-            if (data === "liked") {
+            if (response === "liked") {
                 likeBtn.addClass('custom-hover-like');
                 dislikeBtn.removeClass('custom-hover-dislike');
-            } else if (data === "disliked") {
+            } else if (response === "disliked") {
                 likeBtn.removeClass('custom-hover-like');
                 dislikeBtn.addClass('custom-hover-dislike');
             } else {
@@ -79,9 +79,9 @@ function likeDislikePost(postID, isLike) {
                 dislikeBtn.removeClass('custom-hover-dislike');
             }
         },
-        error: function (data) {
-            alert(data.responseText);
-            $("#error").html(data.responseText); // Assuming your server sends plain text error messages
+        error: function (response) {
+            alert(response.responseText);
+            $("#error").html(response.responseText); // Assuming your server sends plain text error messages
             $("#error").show();
             $("#error").removeClass("d-none");
             $("#error").fadeOut(5000);
@@ -90,50 +90,4 @@ function likeDislikePost(postID, isLike) {
 }
 
 
-
-function likeDislikeComment(commentID, isLike) {
-    event.preventDefault(); // Prevent the default form submission
-    $.ajax({
-        url: "/likeOrDislikeComment",
-        type: "POST",
-        data: JSON.stringify({
-            commentID: commentID,
-            isLike: isLike
-        }),
-        contentType: "application/json",
-        success: function (data) {
-        },
-        error: function (data) {
-            alert(data.responseText);
-            $("#error").html(data.responseText); // Assuming your server sends plain text error messages
-            $("#error").show();
-            $("#error").removeClass("d-none");
-            $("#error").fadeOut(5000);
-        }
-    });
-}
-
-function createComment(postID) {
-    event.preventDefault(); // Prevent the default form submission
-    var comment = $("#comment").val();
-    $.ajax({
-        url: "/createComment",
-        type: "POST",
-        data: JSON.stringify({
-            postID: postID,
-            comment: comment
-        }),
-        contentType: "application/json",
-        success: function (data) {
-            alert("Comment created successfully");
-        },
-        error: function (data) {
-            alert(data.responseText);
-            $("#error").html(data.responseText); // Assuming your server sends plain text error messages
-            $("#error").show();
-            $("#error").removeClass("d-none");
-            $("#error").fadeOut(5000);
-        }
-    });
-}
 

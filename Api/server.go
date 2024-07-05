@@ -40,6 +40,10 @@ func (s *server) Init() {
 	s.mux.HandleFunc("/createPost", s.createPostPage)
 	s.mux.HandleFunc("/createPostAction", s.createPost)
 
+	s.mux.HandleFunc("/post", s.postPage)
+
+	s.mux.HandleFunc("/createCommentAction", s.createComment)
+	s.mux.HandleFunc("/likeOrDislikeComment", s.likeDislikeComment)
 	s.mux.HandleFunc("/likeOrDislikePost", s.likeDislikePost)
 
 	fmt.Println("Server is running on http://localhost:8080/")

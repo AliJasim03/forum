@@ -4,24 +4,21 @@
 <div class="container px-4 px-lg-5">
     <!-- Post Content-->
     <div class="row gx-4 gx-lg-5 justify-content-center">
-                    <div class="alert alert-danger d-none" id="error"></div>
         <div class="col-lg-8">
+            <div class="alert alert-danger d-none" id="error"></div>
             <!-- Title-->
             <h1 class="mt-4">{{.Post.Title}}</h1>
             <!-- Content-->
             <p class="lead">{{.Post.Content}}</p>
             <!-- Author-->
             <p class="lead">
-                by
-                <a href="#!">{{.Post.CreatedBy}} - {{.Post.CreatedOn}}</a>
+            <p>by {{.Post.CreatedBy}} - {{.Post.CreatedOn}}</p>
             </p>
-            <hr>
-            <!-- Post Content-->
-            <p class="lead">{{.Post.Content}}</p>
             <hr>
             <!-- Comments Section -->
             <h2>Comments</h2>
-            {{range $comment .Post.Comments}}
+            <div id="commentsContainer">
+                {{range $comment := .Post.Comments}}
             <div class="card mb-4" id="{{$comment.ID}}">
                 <div class="card-body">
                     <p class="card-text">{{$comment.Content}}</p>
@@ -29,42 +26,212 @@
                 <div class="card-footer text-muted">
                     Posted by {{$comment.CreatedBy}} on {{$comment.CreatedOn}}
                     <div class="col">
-                        <input type="hidden" name="commentID" id="commentID" value="{{$commentID.ID}}">
+                        <input type="hidden" name="commentID" id="commentID" value="{{$comment.ID}}">
                         <input type="hidden" name="isLike" id="isLike" value="dislike">
                         <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','dislike')"
+                            id="dislike-btn-{{$comment.ID}}"
                             class="btn btn-outline-danger btn-sm
-                                                                                                                                        {{if $comment.Like.IsDisliked}}
-                                                                                                                                        custom-hover-dislike
-                                                                                                                                        {{end}}">
+                                                                                                                                    {{if $comment.Like.IsDisliked}}
+                                                                                                                                    custom-hover-dislike
+                                                                                                                                    {{end}}">
                             <i class="bi bi-hand-thumbs-down"></i>
                         </button>
                         <input type="hidden" name="commentID" value="{{$comment.ID}}">
                         <input type="hidden" name="isLike" value="like">
                         <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','like')"
+                            id="like-btn-{{$comment.ID}}"
                             class="btn btn-outline-success btn-sm
-                                                                                                                                        {{if $comment.Like.IsLiked}}
-                                                                                                                                        custom-hover-like
-                                                                                                                                        {{end}}">
+                                                                                                                                    {{if $comment.Like.IsLiked}}
+                                                                                                                                    custom-hover-like
+                                                                                                                                    {{end}}">
                             <i class="bi bi-hand-thumbs-up"></i>
                         </button>
                     </div>
                 </div>
             </div>
             {{end}}
+            </div>
             <hr>
-            <!-- Comments Form-->
             <div class="card my-4">
                 <h5 class="card-header">Leave a Comment:</h5>
                 <div class="card-body">
-                    <form>
-                        <div class="form-group mb-3">
-                            <textarea class="form-control" rows="3" placeholder="Comment"></textarea>
+                    <div class="form-group mb-3">
+                        <textarea class="form-control" id="comment" rows="3" placeholder="Comment"></textarea>
                         </div>
-                        <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
+                    <button type="button" onclick="submitComment()" class="btn btn-primary">Submit</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    var postID = "{{.Post.ID}}";
+    function submitComment() {
+        debugger
+        var comment = $("#comment").val();
+        var data = JSON.stringify({
+            PostID: postID,
+            Comment: comment
+        });
+        $.ajax({
+            url: "/createCommentAction",
+            type: "POST",
+            contentType: "application/json",
+            data: data,  // Send the JSON data object
+            success: function (response) {
+                debugger
+                // Assuming commentText contains the text of the comment you want to add
+                $("#comment").val("");  // Clear the comment text area
+                addCommentToPage(response);
+            },
+            error: function (error) {
+                $("#error").html(error.responseText);  // Display error message
+                $("#error").show();
+                $("#error").removeClass("d-none");
+                $("#error").fadeOut(5000);
+            }
+        });
+    }
+
+    // Function to add a comment to the page
+    function addCommentToPage(comment) {
+        debugger;
+        // Create a new div element for the comment
+        var newCommentDiv = document.createElement("div");
+        newCommentDiv.className = "card mb-4";
+        newCommentDiv.id = comment.ID;
+
+        // Create the card body
+        var cardBodyDiv = document.createElement("div");
+        cardBodyDiv.className = "card-body";
+
+        // Create the card text
+        var cardTextP = document.createElement("p");
+        cardTextP.className = "card-text";
+        cardTextP.textContent = comment.Content;
+
+        // Append card text to card body
+        cardBodyDiv.appendChild(cardTextP);
+
+        // Create the card footer
+        var cardFooterDiv = document.createElement("div");
+        cardFooterDiv.className = "card-footer text-muted";
+        cardFooterDiv.textContent = "Posted by " + comment.CreatedBy + " on " + comment.CreatedOn;
+
+        // Create the hidden inputs and buttons
+        var colDiv = document.createElement("div");
+        colDiv.className = "col";
+
+        var hiddenCommentID = document.createElement("input");
+        hiddenCommentID.type = "hidden";
+        hiddenCommentID.name = "commentID";
+        hiddenCommentID.id = "commentID";
+        hiddenCommentID.value = comment.ID;
+
+        var hiddenIsDislike = document.createElement("input");
+        hiddenIsDislike.type = "hidden";
+        hiddenIsDislike.name = "isLike";
+        hiddenIsDislike.id = "isLike";
+        hiddenIsDislike.value = "dislike";
+
+        var dislikeButton = document.createElement("button");
+        dislikeButton.type = "submit";
+        dislikeButton.className = "btn btn-outline-danger btn-sm";
+        if (comment.Like.IsDisliked) {
+            dislikeButton.classList.add("custom-hover-dislike");
+        }
+        dislikeButton.onclick = function () { likeDislikeComment(comment.ID, 'dislike'); };
+        dislikeButton.innerHTML = '<i class="bi bi-hand-thumbs-down"></i>';
+
+        var hiddenIsLike = document.createElement("input");
+        hiddenIsLike.type = "hidden";
+        hiddenIsLike.name = "isLike";
+        hiddenIsLike.value = "like";
+
+        var likeButton = document.createElement("button");
+        likeButton.type = "submit";
+        likeButton.className = "btn btn-outline-success btn-sm";
+        if (comment.Like.IsLiked) {
+            likeButton.classList.add("custom-hover-like");
+        }
+        likeButton.onclick = function () { likeDislikeComment(comment.ID, 'like'); };
+        likeButton.innerHTML = '<i class="bi bi-hand-thumbs-up"></i>';
+
+        // Append hidden inputs and buttons to the colDiv
+        colDiv.appendChild(hiddenCommentID);
+        colDiv.appendChild(hiddenIsDislike);
+        colDiv.appendChild(dislikeButton);
+        colDiv.appendChild(hiddenIsLike);
+        colDiv.appendChild(likeButton);
+
+        // Append colDiv to card footer
+        cardFooterDiv.appendChild(colDiv);
+
+        // Append card body and card footer to new comment div
+        newCommentDiv.appendChild(cardBodyDiv);
+        newCommentDiv.appendChild(cardFooterDiv);
+
+        // Append the new comment div to the container
+        $("#commentsContainer").append(newCommentDiv);
+    }
+
+    // Example usage
+    var comment = {
+        ID: "123",
+        Content: "This is a new comment",
+        CreatedBy: "User",
+        CreatedOn: "2024-07-06",
+        Like: {
+            IsLiked: false,
+            IsDisliked: false
+        }
+    };
+
+    //addCommentToPage(comment);
+    $("input").on("keypress", function () {
+        $("#error").hide();
+        $("#success").hide();
+        $("#error").addClass("d-none");
+        $("#success").addClass("d-none");
+    });
+</script>
+
+<script>
+    function likeDislikeComment(commentID, likeDislike) {
+        var data = JSON.stringify({
+            ID: commentID,
+            isLike: likeDislike
+        });
+        $.ajax({
+            url: "/likeOrDislikeComment",
+            type: "POST",
+            contentType: "application/json",
+            data: data,  // Send the JSON data object
+            success: function (response) {
+                debugger;
+                const likeBtn = $('#like-btn-' + commentID);
+                const dislikeBtn = $('#dislike-btn-' + commentID);
+
+                if (response === "liked") {
+                    likeBtn.addClass('custom-hover-like');
+                    dislikeBtn.removeClass('custom-hover-dislike');
+                } else if (response === "disliked") {
+                    likeBtn.removeClass('custom-hover-like');
+                    dislikeBtn.addClass('custom-hover-dislike');
+                } else {
+                    likeBtn.removeClass('custom-hover-like');
+                    dislikeBtn.removeClass('custom-hover-dislike');
+                }
+
+            },
+            error: function (error) {
+                alert(error.responseText);
+                $("#error").html(error.responseText);  // Display error message
+                $("#error").show();
+                $("#error").removeClass("d-none");
+                $("#error").fadeOut(5000);
+            }
+        });
+    }
+</script>
 {{end}}

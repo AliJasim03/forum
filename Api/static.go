@@ -1,9 +1,11 @@
 package api
 
 import (
-	backend "forum/db"
 	"html/template"
 	"net/http"
+	"strconv"
+
+	backend "forum/db"
 )
 
 func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
@@ -43,6 +45,7 @@ func (s *server) loginPage(w http.ResponseWriter, r *http.Request) {
 		"isLoggedIn": isLoggedIn,
 	})
 }
+
 func (s *server) createPostPage(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, _ := s.authenticateCookie(r)
 	categories := backend.GetCategories(s.db)
@@ -50,5 +53,25 @@ func (s *server) createPostPage(w http.ResponseWriter, r *http.Request) {
 		"Title":      "Create Post",
 		"isLoggedIn": isLoggedIn,
 		"Categories": categories,
+	})
+}
+
+func (s *server) postPage(w http.ResponseWriter, r *http.Request) {
+	isLoggedIn, userID := s.authenticateCookie(r)
+	post := backend.Post{}
+	postID := r.URL.Query().Get("id")
+	// convert string to int
+	id, err := strconv.Atoi(postID)
+	if err != nil {
+		// handle error
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+	}
+	post.ID = id
+	backend.GetPost(s.db, userID, &post)
+
+	renderTemplate(w, "postDetails", map[string]interface{}{
+		"Title":      "Post",
+		"isLoggedIn": isLoggedIn,
+		"Post":       post,
 	})
 }
