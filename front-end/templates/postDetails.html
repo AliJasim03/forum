@@ -20,7 +20,6 @@
             <div id="commentsContainer">
                 {{range $comment := .Post.Comments}}
             <div class="card mb-4" id="{{$comment.ID}}">
-                {{$comment.Like}}
                 <div class="card-body">
                     <p class="card-text">{{$comment.Content}}</p>
                 </div>
