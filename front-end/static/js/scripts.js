@@ -78,6 +78,7 @@ function likeDislikePost(postID, isLike) {
                 likeBtn.removeClass('custom-hover-like');
                 dislikeBtn.removeClass('custom-hover-dislike');
             }
+            updateCounters(postID);
         },
         error: function (response) {
             alert(response.responseText);
@@ -85,6 +86,25 @@ function likeDislikePost(postID, isLike) {
             $("#error").show();
             $("#error").removeClass("d-none");
             $("#error").fadeOut(5000);
+        }
+    });
+}
+
+function updateCounters(postID) {
+    $.ajax({
+        url: "/getPostLikesAndDislikesCount",
+        type: "POST",
+        data: JSON.stringify({
+            ID: postID
+        }),
+        contentType: "application/json",
+        success: function (data) {
+            debugger;
+            $('#like-count-' + postID).text(data.likes);
+            $('#dislike-count-' + postID).text(data.dislikes);
+        },
+        error: function (data) {
+            alert(data.responseText);
         }
     });
 }

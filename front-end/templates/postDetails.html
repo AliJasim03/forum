@@ -20,14 +20,14 @@
             <div id="commentsContainer">
                 {{range $comment := .Post.Comments}}
             <div class="card mb-4" id="{{$comment.ID}}">
+                {{$comment.Like}}
                 <div class="card-body">
                     <p class="card-text">{{$comment.Content}}</p>
                 </div>
                 <div class="card-footer text-muted">
                     Posted by {{$comment.CreatedBy}} on {{$comment.CreatedOn}}
                     <div class="col">
-                        <input type="hidden" name="commentID" id="commentID" value="{{$comment.ID}}">
-                        <input type="hidden" name="isLike" id="isLike" value="dislike">
+                        <p id="dislike-count-{{$comment.ID}}">{{$comment.Like.CountDislikes}}</p>
                         <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','dislike')"
                             id="dislike-btn-{{$comment.ID}}"
                             class="btn btn-outline-danger btn-sm
@@ -36,8 +36,7 @@
                                                                                                                                     {{end}}">
                             <i class="bi bi-hand-thumbs-down"></i>
                         </button>
-                        <input type="hidden" name="commentID" value="{{$comment.ID}}">
-                        <input type="hidden" name="isLike" value="like">
+                <p id="like-count-{{$comment.ID}}">{{$comment.Like.CountLikes}}</p>
                         <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','like')"
                             id="like-btn-{{$comment.ID}}"
                             class="btn btn-outline-success btn-sm
@@ -207,7 +206,6 @@
             contentType: "application/json",
             data: data,  // Send the JSON data object
             success: function (response) {
-                debugger;
                 const likeBtn = $('#like-btn-' + commentID);
                 const dislikeBtn = $('#dislike-btn-' + commentID);
 
@@ -222,6 +220,7 @@
                     dislikeBtn.removeClass('custom-hover-dislike');
                 }
 
+                updateCommentCounters(commentID);
             },
             error: function (error) {
                 alert(error.responseText);
@@ -229,6 +228,24 @@
                 $("#error").show();
                 $("#error").removeClass("d-none");
                 $("#error").fadeOut(5000);
+            }
+        });
+    }
+
+    function updateCommentCounters(commentID) {
+        $.ajax({
+            url: "/getCommentLikeDislikeCount",
+            type: "POST",
+            data: JSON.stringify({
+                ID: commentID
+            }),
+            success: function (response) {
+                debugger;
+                $('#like-count-' + commentID).text(response.likes);
+                $('#dislike-count-' + commentID).text(response.dislikes);
+            },
+            error: function (error) {
+                alert(error.responseText);
             }
         });
     }

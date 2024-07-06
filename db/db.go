@@ -240,7 +240,6 @@ func GetPost(db *sql.DB, user int, post *Post) {
 		if user == userId {
 			comment.IsCreatedByUser = true
 		}
-		post.Comments = append(post.Comments, *comment)
 
 		// get the likes and dislikes of the comments
 		var likes, dislikes int
@@ -269,6 +268,7 @@ func GetPost(db *sql.DB, user int, post *Post) {
 			comment.Like.IsLiked = isLiked > 0
 			comment.Like.IsDisliked = isDisliked > 0
 		}
+		post.Comments = append(post.Comments, *comment)
 
 	}
 }
@@ -447,4 +447,30 @@ func KnowCommentLike(db *sql.DB, userID int, commnetID string) string {
 		return "liked"
 	}
 	return "disliked"
+}
+
+func GetPostLikesAndDislikesCount(db *sql.DB, postID string) (int, int) {
+	var likes, dislikes int
+	err := db.QueryRow("SELECT COUNT(*) FROM likes WHERE post_id = ? AND is_like = ?", postID, true).Scan(&likes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.QueryRow("SELECT COUNT(*) FROM likes WHERE post_id = ? AND is_like = ?", postID, false).Scan(&dislikes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return likes, dislikes
+}
+
+func GetCommentLikesAndDislikesCount(db *sql.DB, commentID string) (int, int) {
+	var likes, dislikes int
+	err := db.QueryRow("SELECT COUNT(*) FROM likes WHERE comment_id = ? AND is_like = ?", commentID, true).Scan(&likes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	err = db.QueryRow("SELECT COUNT(*) FROM likes WHERE comment_id = ? AND is_like = ?", commentID, false).Scan(&dislikes)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return likes, dislikes
 }

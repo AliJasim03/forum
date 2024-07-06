@@ -11,15 +11,15 @@
                 important information or display a clever tagline!</p>
         </div>
     </div>
-            <div class="form-group mb-3">
-                <label for="categories">Categories</label>
-                <select class="form-control" name="categories" id="categories">
-                    <option selected value="All">All</option>
-                    {{range .Categories}}
-                    <option value="{{.Name}}">{{.Name}}</option>
-                    {{end}}
-                </select>
-            </div>
+    <div class="form-group mb-3">
+        <label for="categories">Categories</label>
+        <select class="form-control" name="categories" id="categories">
+            <option selected value="All">All</option>
+            {{range .Categories}}
+            <option value="{{.Name}}">{{.Name}}</option>
+            {{end}}
+        </select>
+    </div>
     <!-- Content Row-->
     <div class="row gx-4 gx-lg-5">
         {{range $post := .Posts}}
@@ -41,20 +41,21 @@
                     </div>
                     <div class="row align-items-center">
                         <div class="col">
-                            <input type="hidden" name="postID" id="postID" value="{{$post.ID}}">
-                            <input type="hidden" name="isLike" id="isLike" value="dislike">
-                            <button type="button" onclick="likeDislikePost('{{$post.ID}}','dislike')"
-                                id="dislike-btn-{{$post.ID}}"
-                                class="btn btn-outline-danger btn-sm {{if $post.Like.IsDisliked}} custom-hover-dislike {{end}}">
-                                <i class="bi bi-hand-thumbs-down"></i>
-                            </button>
-                            <input type="hidden" name="postID" value="{{$post.ID}}">
-                            <input type="hidden" name="isLike" value="like">
-                            <button type="button" onclick="likeDislikePost('{{$post.ID}}','like')"
-                                id="like-btn-{{$post.ID}}"
-                                class="btn btn-outline-success btn-sm {{if $post.Like.IsLiked}} custom-hover-like {{end}}">
-                                <i class="bi bi-hand-thumbs-up"></i>
-                            </button>
+                            <div class="d-flex gap-3">
+                                <p id="dislike-count-{{$post.ID}}">{{$post.Like.CountDislikes}}</p>
+                                <button type="button" onclick="likeDislikePost('{{$post.ID}}','dislike')" id="dislike-btn-{{$post.ID}}"
+                                    class="btn btn-outline-danger btn-sm {{if $post.Like.IsDisliked}} custom-hover-dislike {{end}}">
+                                    <i class="bi bi-hand-thumbs-down"></i>
+                                </button>
+                            </div>
+                            <div class="d-flex gap-3">
+                                <p id="like-count-{{$post.ID}}">{{$post.Like.CountLikes}}</p>
+                                <button type="button" onclick="likeDislikePost('{{$post.ID}}','like')" id="like-btn-{{$post.ID}}"
+                                    class="btn btn-outline-success btn-sm {{if $post.Like.IsLiked}} custom-hover-like {{end}}">
+                                    <i class="bi bi-hand-thumbs-up"></i>
+                                </button>
+                            </div>
+
                         </div>
                         <a class="btn btn-primary btn-sm ms-2" href="/post?id={{$post.ID}}">View Comments</a>
                     </div>

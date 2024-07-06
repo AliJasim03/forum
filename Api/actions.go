@@ -2,8 +2,9 @@ package api
 
 import (
 	"encoding/json"
-	backend "forum/db"
 	"net/http"
+
+	backend "forum/db"
 )
 
 type LikeDisJson struct {
@@ -12,7 +13,7 @@ type LikeDisJson struct {
 }
 
 func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
-	//get the cookie to use token to get userID
+	// get the cookie to use token to get userID
 	isLoggedIn, userID := s.authenticateCookie(r)
 
 	var LikeDis LikeDisJson
@@ -28,25 +29,25 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var action = LikeDis.IsLike
+	action := LikeDis.IsLike
 	if action == "" || LikeDis.ID == "" {
 		http.Error(w, "missing like or dislike", http.StatusBadRequest)
 		return
 	}
-	var isLike = false
+	isLike := false
 	if LikeDis.IsLike == "like" {
 		isLike = true
 	} else if LikeDis.IsLike == "dislike" {
 		isLike = false
 	}
-	//save like to the database for the user
+	// save like to the database for the user
 	ok := backend.LikeDislikePost(s.db, userID, LikeDis.ID, isLike)
 	if ok {
 
 		isLiked := backend.KnowPostLike(s.db, userID, LikeDis.ID)
-		//return data to the client that the like is success
+		// return data to the client that the like is success
 		w.Header().Set("Content-Type", "application/json")
-		//return isliked
+		// return isliked
 		json.NewEncoder(w).Encode(isLiked)
 		return
 	}
@@ -65,7 +66,7 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//get them values the body request json
+	// get them values the body request json
 	var post backend.PostJson
 	err := json.NewDecoder(req.Body).Decode(&post)
 	if err != nil {
@@ -84,7 +85,7 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 		http.Error(res, "Failed to create post", http.StatusInternalServerError)
 		return
 	}
-	//return message ok to the client
+	// return message ok to the client
 	res.WriteHeader(http.StatusOK)
 }
 
@@ -115,13 +116,13 @@ func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	//return the comment to the client
+	// return the comment to the client
 	res.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(res).Encode(retunedComment)
 }
 
 func (s *server) likeDislikeComment(w http.ResponseWriter, r *http.Request) {
-	//get the cookie to use token to get userID
+	// get the cookie to use token to get userID
 	isLoggedIn, userID := s.authenticateCookie(r)
 
 	var LikeDis LikeDisJson
@@ -141,21 +142,71 @@ func (s *server) likeDislikeComment(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "missing like or dislike", http.StatusBadRequest)
 		return
 	}
-	var isLike = false
+	isLike := false
 	if LikeDis.IsLike == "like" {
 		isLike = true
 	} else if LikeDis.IsLike == "dislike" {
 		isLike = false
 	}
-	//save like to the database for the user
+	// save like to the database for the user
 	ok := backend.LikeDislikeComment(s.db, userID, LikeDis.ID, isLike)
 	if ok {
 		isLiked := backend.KnowCommentLike(s.db, userID, LikeDis.ID)
-		//return data to the client that the like is success
+		// return data to the client that the like is success
 		w.Header().Set("Content-Type", "application/json")
-		//return isliked
+		// return isliked
 		json.NewEncoder(w).Encode(isLiked)
 		return
 	}
 	http.Error(w, "can't make like", http.StatusInternalServerError)
+}
+
+func (s *server) getPostLikesAndDislikesCount(w http.ResponseWriter, r *http.Request) {
+	var ID backend.IDJson
+
+	err := json.NewDecoder(r.Body).Decode(&ID)
+	if err != nil {
+		http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
+
+	if ID.ID == "" {
+		http.Error(w, "missing postID", http.StatusBadRequest)
+		return
+	}
+	// get the count of likes and dislikes
+	likes, dislike := backend.GetPostLikesAndDislikesCount(s.db, ID.ID)
+	// return the count to the client
+	w.Header().Set("Content-Type", "application/json")
+	// build json
+	counts := map[string]int{
+		"likes":    likes,
+		"dislikes": dislike,
+	}
+	json.NewEncoder(w).Encode(counts)
+}
+
+func (s *server) getCommentLikesAndDislikesCount(w http.ResponseWriter, r *http.Request) {
+	var ID backend.IDJson
+
+	err := json.NewDecoder(r.Body).Decode(&ID)
+	if err != nil {
+		http.Error(w, "Failed to decode request body", http.StatusBadRequest)
+		return
+	}
+
+	if ID.ID == "" {
+		http.Error(w, "missing commentID", http.StatusBadRequest)
+		return
+	}
+	// get the count of likes and dislikes
+	likes, dislike := backend.GetCommentLikesAndDislikesCount(s.db, ID.ID)
+	// return the count to the client
+	w.Header().Set("Content-Type", "application/json")
+	// build json
+	counts := map[string]int{
+		"likes":    likes,
+		"dislikes": dislike,
+	}
+	json.NewEncoder(w).Encode(counts)
 }

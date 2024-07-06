@@ -19,7 +19,7 @@
             <div class="form-group mb-3">
                     {{range .Categories}}
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" value="{{.Name}}" id="flexCheckDefault">
+                        <input class="form-check-input" type="checkbox" name="categories" value="{{.Name}}" id="flexCheckDefault">
                         <label class="form-check-label" for="flexCheckDefault">
                             {{.Name}}
                         </label>
@@ -34,12 +34,17 @@
 <br>
 <script>
     function creatPost() {
+        debugger;
         var title = $("#title").val();
         var content = $("#content").val();
+        var categories = [];
+        $.each($("input[name='categories']:checked"), function () {
+            categories.push($(this).val());
+        });
         var data = JSON.stringify({
             Title: title,
             Content: content,
-            Categories: []
+            Categories: categories
         });
         $.ajax({
             url: "/createPostAction",
@@ -47,7 +52,7 @@
             contentType: "application/json",
             data: data,  // Send the JSON data object
             success: function (response) {
-                $("#success").html("Account Created Successfully");  // Display success message
+                $("#success").html("Post Created Successfully");  // Display success message
                 $("#success").show();
                 $("#success").removeClass("d-none");
             },
