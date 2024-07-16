@@ -3,40 +3,8 @@ package db
 import (
 	"database/sql"
 	"log"
-	"os"
 	"time"
-
-	_ "github.com/gofrs/uuid"
-	_ "github.com/mattn/go-sqlite3"
-	_ "golang.org/x/crypto/bcrypt"
 )
-
-func OpenConnection() *sql.DB {
-	db, err := sql.Open("sqlite3", "db/forum.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return initDB(db)
-}
-
-func CloseDB(db *sql.DB) {
-	db.Close()
-}
-
-func initDB(db *sql.DB) *sql.DB {
-	sqlFile, err := os.ReadFile("db/init.sql")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	_, err = db.Exec(string(sqlFile))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return db
-}
 
 func GetPosts(db *sql.DB, user int, posts *[]Post) {
 	rows, err := db.Query("SELECT * FROM posts")
@@ -53,10 +21,7 @@ func GetPosts(db *sql.DB, user int, posts *[]Post) {
 			log.Fatal(err)
 		}
 		post.CreatedBy = GetUsername(db, userId)
-		// convert user to
-		if user == userId {
-			post.IsCreatedByUser = true
-		}
+		post.IsCreatedByUser = user == userId
 		*posts = append(*posts, *post)
 	}
 
@@ -294,7 +259,7 @@ func LikeDislikePost(db *sql.DB, userID int, postID string, isLike bool) bool {
 	if exists {
 		// reverse the value of isliked
 		var oldVal bool
-		err := db.QueryRow("SELECT is_like FROM likes WHERE user_id = ? AND post_id = ?", userID, postID).Scan(&oldVal)
+		err = db.QueryRow("SELECT is_like FROM likes WHERE user_id = ? AND post_id = ?", userID, postID).Scan(&oldVal)
 		if err != nil {
 			log.Fatal(err)
 			return false
@@ -349,7 +314,7 @@ func CreatePost(db *sql.DB, userID int, post PostJson) bool {
 	}
 
 	// add the category
-	for _, ct := range post.Gategories {
+	for _, ct := range post.Categories {
 		if ct != "" { // check if not empty
 			var categoryID int
 			err = db.QueryRow("SELECT id FROM categories WHERE name = ?", ct).Scan(&categoryID)

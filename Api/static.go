@@ -25,12 +25,12 @@ func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(r)
 	var posts []backend.Post
 	backend.GetPosts(s.db, userID, &posts)
-	Gategories := backend.GetCategories(s.db)
+	Categories := backend.GetCategories(s.db)
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,
 		"Posts":      posts,
-		"Categories": Gategories,
+		"Categories": Categories,
 	})
 }
 
@@ -45,13 +45,13 @@ func (s *server) filterCreatedPost(w http.ResponseWriter, r *http.Request) {
 			filteredPosts = append(filteredPosts, posts[i])
 		}
 	}
-	Gategories := backend.GetCategories(s.db)
+	Categories := backend.GetCategories(s.db)
 
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,
 		"Posts":      filteredPosts,
-		"Categories": Gategories,
+		"Categories": Categories,
 	})
 }
 
@@ -60,19 +60,19 @@ func (s *server) filterLikedPost(w http.ResponseWriter, r *http.Request) {
 	var posts []backend.Post
 	backend.GetPosts(s.db, userID, &posts)
 	var filteredPosts []backend.Post
-	// filter the post that is created by the user
+	// filter posts that are created by the user
 	for i := 0; i < len(posts); i++ {
 		if posts[i].Like.IsLiked {
 			filteredPosts = append(filteredPosts, posts[i])
 		}
 	}
-	Gategories := backend.GetCategories(s.db)
+	Categories := backend.GetCategories(s.db)
 
 	renderTemplate(w, "index", map[string]interface{}{
 		"Title":      "Homepage",
 		"isLoggedIn": isLoggedIn,
 		"Posts":      filteredPosts,
-		"Categories": Gategories,
+		"Categories": Categories,
 	})
 }
 

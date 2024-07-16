@@ -11,6 +11,7 @@ type Post struct {
 	Comments        []Comment
 	IsCreatedByUser bool
 }
+
 type Comment struct {
 	ID              int
 	PostID          int
@@ -20,6 +21,7 @@ type Comment struct {
 	Like            Like
 	IsCreatedByUser bool
 }
+
 type Like struct {
 	CountLikes    int
 	CountDislikes int
@@ -31,10 +33,11 @@ type Category struct {
 	ID   int
 	Name string
 }
+
 type PostJson struct {
 	Title      string   `json:"title"`
 	Content    string   `json:"content"`
-	Gategories []string `json:"categories"`
+	Categories []string `json:"categories"`
 }
 
 type CommentJson struct {
@@ -45,4 +48,3 @@ type CommentJson struct {
 type IDJson struct {
 	ID string `json:"ID"`
 }
-
