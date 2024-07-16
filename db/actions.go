@@ -7,7 +7,7 @@ import (
 )
 
 func GetPosts(db *sql.DB, user int, posts *[]Post) {
-	rows, err := db.Query("SELECT * FROM posts")
+	rows, err := db.Query("SELECT id, user_id, title, content, strftime('%Y-%m-%d %H:%M:%S', created_at) AS created_at FROM posts")
 	if err != nil {
 		log.Fatal(err)
 	}

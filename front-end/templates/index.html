@@ -33,31 +33,34 @@
                     <p class="card-text">{{$post.Content}}</p>
                 </div>
                 <div class="card-footer d-flex justify-content-between align-items-center">
-                    <div class="col-9">
+                    <div class="col">
                         <div class="row">
                             <p class="mb-0"><strong>{{$post.CreatedBy}}</strong></p>
                             <p class="mb-0 text-muted"> {{$post.CreatedOn}}</p>
                         </div>
                     </div>
-                    <div class="row align-items-center">
-                        <div class="col">
-                            <div class="d-flex gap-3">
-                                <p id="dislike-count-{{$post.ID}}">{{$post.Like.CountDislikes}}</p>
-                                <button type="button" onclick="likeDislikePost('{{$post.ID}}','dislike')" id="dislike-btn-{{$post.ID}}"
-                                    class="btn btn-outline-danger btn-sm {{if $post.Like.IsDisliked}} custom-hover-dislike {{end}}">
-                                    <i class="bi bi-hand-thumbs-down"></i>
+                    <div class="col-auto">
+                        <div class="row">
+                            <div class="d-flex flex-row-reverse mb-2">
+                                <div style="margin-left: 0.5em">
+                                    <button type="button" id="dislike-btn-{{$post.ID}}"
+                                            onclick="likeDislikePost('{{$post.ID}}','dislike')"
+                                            class="btn btn-outline-danger btn-sm {{if $post.Like.IsDisliked}} custom-hover-dislike {{end}}">
+                                        <p id="dislike-count-{{$post.ID}}" style="margin:auto">{{$post.Like.CountDislikes}}
+                                            <i class="bi bi-hand-thumbs-down"></i>
+                                        </p>
+                                    </button>
+                                </div>
+                                <button type="button" id="like-btn-{{$post.ID}}"
+                                        onclick="likeDislikePost('{{$post.ID}}','like')"
+                                        class="btn btn-outline-success btn-sm {{if $post.Like.IsLiked}} custom-hover-like {{end}}">
+                                    <p id="like-count-{{$post.ID}}" style="margin:auto">{{$post.Like.CountLikes}}
+                                        <i class="bi bi-hand-thumbs-up"></i>
+                                    </p>
                                 </button>
                             </div>
-                            <div class="d-flex gap-3">
-                                <p id="like-count-{{$post.ID}}">{{$post.Like.CountLikes}}</p>
-                                <button type="button" onclick="likeDislikePost('{{$post.ID}}','like')" id="like-btn-{{$post.ID}}"
-                                    class="btn btn-outline-success btn-sm {{if $post.Like.IsLiked}} custom-hover-like {{end}}">
-                                    <i class="bi bi-hand-thumbs-up"></i>
-                                </button>
-                            </div>
-
                         </div>
-                        <a class="btn btn-primary btn-sm ms-2" href="/post?id={{$post.ID}}">View Comments</a>
+                        <a class="btn btn-primary btn-sm" href="/post?id={{$post.ID}}">View Comments</a>
                     </div>
                 </div>
             </div>
