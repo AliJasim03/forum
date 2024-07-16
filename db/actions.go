@@ -139,10 +139,16 @@ func GetPosts(db *sql.DB, user int, posts *[]Post) {
 func GetPost(db *sql.DB, user int, post *Post) {
 	var userIdTemp int
 
-	err := db.QueryRow("SELECT * FROM posts WHERE id = ?", post.ID).Scan(&post.ID, &userIdTemp, &post.Title, &post.Content, &post.CreatedOn)
+	row := db.QueryRow("SELECT id, user_id, title, content, strftime('%Y-%m-%d %H:%M:%S', created_at) FROM posts WHERE id = ?", post.ID)
+	if row == nil {
+		log.Fatal("Failed to query row")
+	}
+
+	err := row.Scan(&post.ID, &userIdTemp, &post.Title, &post.Content, &post.CreatedOn)
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	post.CreatedBy = GetUsername(db, userIdTemp)
 
 	// get the categories of the post_categories
@@ -188,7 +194,7 @@ func GetPost(db *sql.DB, user int, post *Post) {
 	}
 	// comments in each post
 
-	rows, err = db.Query("SELECT * FROM comments WHERE post_id = ?", post.ID)
+	rows, err = db.Query("SELECT id, post_id, user_id, content, strftime('%Y-%m-%d %H:%M:%S', created_at) AS created_at FROM comments WHERE post_id = ?", post.ID)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -300,17 +306,17 @@ func KnowPostLike(db *sql.DB, userID int, postID string) string {
 	return "disliked"
 }
 
-func CreatePost(db *sql.DB, userID int, post PostJson) bool {
+func CreatePost(db *sql.DB, userID int, post PostJson) int {
 	// create the post
 	_, err := db.Exec("INSERT INTO posts (user_id, title, content) VALUES (?, ?, ?)", userID, post.Title, post.Content)
 	if err != nil {
-		return false
+		return -1
 	}
 
 	var postID int
 	err = db.QueryRow("SELECT id FROM posts WHERE user_id = ? AND title = ? ORDER BY created_at DESC LIMIT 1", userID, post.Title).Scan(&postID)
 	if err != nil {
-		return false
+		return -1
 	}
 
 	// add the category
@@ -319,16 +325,16 @@ func CreatePost(db *sql.DB, userID int, post PostJson) bool {
 			var categoryID int
 			err = db.QueryRow("SELECT id FROM categories WHERE name = ?", ct).Scan(&categoryID)
 			if err != nil {
-				return false
+				return -1
 			}
 
 			_, err = db.Exec("INSERT INTO post_categories (post_id, category_id) VALUES (?, ?)", postID, categoryID)
 			if err != nil {
-				return false
+				return -1
 			}
 		}
 	}
-	return true
+	return postID
 }
 
 func GetCategories(db *sql.DB) []Category {

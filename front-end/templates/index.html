@@ -11,8 +11,8 @@
                 important information or display a clever tagline!</p>
         </div>
     </div>
-    <div class="form-group mb-3">
-        <label for="categories">Categories</label>
+    <div class="mb-3 d-flex flex-row gap-2">
+        <label for="categories" class="m-auto">Categories</label>
         <select class="form-control" name="categories" id="categories">
             <option selected value="All">All</option>
             {{range .Categories}}
@@ -23,9 +23,7 @@
     <!-- Content Row-->
     <div class="row gx-4 gx-lg-5">
         {{range $post := .Posts}}
-        <div class="col-md-4 mb-5 {{range $cat := $post.Categories}}
-                                                                                                                                        {{$cat}}
-                                                                                                                                        {{end}}"
+        <div class="col-md-4 mb-5 {{range $cat := $post.Categories}} {{$cat}} {{end}}"
             id="{{$post.ID}}">
             <div class="card h-100">
                 <div class="card-body">
@@ -41,22 +39,22 @@
                     </div>
                     <div class="col-auto">
                         <div class="row">
-                            <div class="d-flex flex-row-reverse mb-2">
-                                <div style="margin-left: 0.5em">
-                                    <button type="button" id="dislike-btn-{{$post.ID}}"
-                                            onclick="likeDislikePost('{{$post.ID}}','dislike')"
-                                            class="btn btn-outline-danger btn-sm {{if $post.Like.IsDisliked}} custom-hover-dislike {{end}}">
-                                        <p id="dislike-count-{{$post.ID}}" style="margin:auto">{{$post.Like.CountDislikes}}
-                                            <i class="bi bi-hand-thumbs-down"></i>
-                                        </p>
-                                    </button>
-                                </div>
+                            <div class="d-flex flex-row-reverse mb-2 gap-2">
+                                <button type="button" id="dislike-btn-{{$post.ID}}"
+                                        onclick="likeDislikePost('{{$post.ID}}','dislike')"
+                                        class="btn btn-outline-danger btn-sm {{if $post.Like.IsDisliked}} custom-hover-dislike {{end}}">
+                                    <p id="dislike-count-{{$post.ID}}" class="d-inline">
+                                        {{$post.Like.CountDislikes}}
+                                    </p>
+                                    <i class="bi bi-hand-thumbs-down"></i>
+                                </button>
                                 <button type="button" id="like-btn-{{$post.ID}}"
                                         onclick="likeDislikePost('{{$post.ID}}','like')"
                                         class="btn btn-outline-success btn-sm {{if $post.Like.IsLiked}} custom-hover-like {{end}}">
-                                    <p id="like-count-{{$post.ID}}" style="margin:auto">{{$post.Like.CountLikes}}
-                                        <i class="bi bi-hand-thumbs-up"></i>
+                                    <p id="like-count-{{$post.ID}}" class="d-inline">
+                                        {{$post.Like.CountLikes}}
                                     </p>
+                                    <i class="bi bi-hand-thumbs-up"></i>
                                 </button>
                             </div>
                         </div>

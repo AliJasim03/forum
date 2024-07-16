@@ -24,28 +24,33 @@
                         <p class="card-text">{{$comment.Content}}</p>
                     </div>
                     <div class="card-footer text-muted">
-                        Posted by {{$comment.CreatedBy}} on {{$comment.CreatedOn}}
-                        <div class="col">
-                            <p id="dislike-count-{{$comment.ID}}">{{$comment.Like.CountDislikes}}</p>
-                            <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','dislike')"
-                                id="dislike-btn-{{$comment.ID}}" class="btn btn-outline-danger btn-sm
-                                                                                                                                    {{if $comment.Like.IsDisliked}}
-                                                                                                                                    custom-hover-dislike
-                                                                                                                                    {{end}}">
-                                <i class="bi bi-hand-thumbs-down"></i>
-                                </button>
-                                <p id="like-count-{{$comment.ID}}">{{$comment.Like.CountLikes}}</p>
-                                <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','like')" id="like-btn-{{$comment.ID}}"
+                        <div class="d-flex flex-row gap-2">
+                            <div style="margin-right: auto">
+                                Posted by {{$comment.CreatedBy}} on {{$comment.CreatedOn}}
+                            </div>
+
+                            <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','like')"
+                                    id="like-btn-{{$comment.ID}}"
                                     class="btn btn-outline-success btn-sm
-                                                                                                                                    {{if $comment.Like.IsLiked}}
-                                                                                                                                    custom-hover-like
-                                                                                                                                    {{end}}">
+                                           {{if $comment.Like.IsLiked}} custom-hover-like {{end}}">
+                                <p id="like-count-{{$comment.ID}}" class="d-inline">
+                                    {{$comment.Like.CountLikes}}
+                                </p>
                                 <i class="bi bi-hand-thumbs-up"></i>
-                                </button>
-                                </div>
-                                </div>
-                                </div>
-                                {{end}}
+                            </button>
+
+                            <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','dislike')"
+                                    id="dislike-btn-{{$comment.ID}}" class="btn btn-outline-danger btn-sm
+                                {{if $comment.Like.IsDisliked}} custom-hover-dislike {{end}}">
+                                <p id="dislike-count-{{$comment.ID}}" class="d-inline">
+                                    {{$comment.Like.CountDislikes}}
+                                </p>
+                                <i class="bi bi-hand-thumbs-down"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                {{end}}
             </div>
             <hr>
             <div class="card my-4">

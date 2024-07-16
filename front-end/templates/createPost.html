@@ -27,14 +27,16 @@
                     {{end}}
                 </select>
             </div>
-            <button type="button" onclick="creatPost()" class="btn btn-primary btn-block">Create Post</button>
+            <button id='create-btn' type="button" onclick="creatPost()" class="btn btn-primary btn-block">Create Post</button>
         </div>
     </div>
 </div>
 <br>
 <script>
     function creatPost() {
-        debugger;
+        const createBtn = document.getElementById('create-btn');
+        createBtn.disabled = true;
+
         var title = $("#title").val();
         var content = $("#content").val();
         var categories = [];
@@ -55,11 +57,16 @@
                 $("#success").html("Post Created Successfully");  // Display success message
                 $("#success").show();
                 $("#success").removeClass("d-none");
+
+                setTimeout(() => {
+                    location.href = 'post?id=' + response
+                }, 3e3)
             },
             error: function (error) {
                 $("#error").html(error.responseText);  // Display error message
                 $("#error").show();
                 $("#error").removeClass("d-none");
+                createBtn.disabled = false;
             }
         });
     }

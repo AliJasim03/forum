@@ -80,13 +80,15 @@ func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	ok := backend.CreatePost(s.db, userID, post)
-	if !ok {
+	postId := backend.CreatePost(s.db, userID, post)
+	if postId == -1 {
 		http.Error(res, "Failed to create post", http.StatusInternalServerError)
 		return
 	}
 	// return message ok to the client
 	res.WriteHeader(http.StatusOK)
+	res.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(res).Encode(postId)
 }
 
 func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
