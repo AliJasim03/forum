@@ -1,7 +1,7 @@
 function submitComment(postID) {
 
-    var comment = $("#comment").val();
-    var data = JSON.stringify({
+    const comment = $("#comment").val();
+    const data = JSON.stringify({
         PostID: postID,
         Comment: comment
     });
@@ -28,86 +28,45 @@ function submitComment(postID) {
 function addCommentToPage(comment) {
 
     // Create a new div element for the comment
-    var newCommentDiv = document.createElement("div");
+    const newCommentDiv = document.createElement("div");
     newCommentDiv.className = "card mb-4";
     newCommentDiv.id = comment.ID;
 
-    // Create the card body
-    var cardBodyDiv = document.createElement("div");
-    cardBodyDiv.className = "card-body";
+    newCommentDiv.innerHTML =
+`<div class="card-body">
+    <p class="card-text">` + comment.Content + `</p>
+</div>
+<div class="card-footer text-muted">
+    <div class="d-flex flex-row gap-2">
+        <div style="margin-right: auto">
+            Posted by You on ` + comment.CreatedOn + `
+        </div>
 
-    // Create the card text
-    var cardTextP = document.createElement("p");
-    cardTextP.className = "card-text";
-    cardTextP.textContent = comment.Content;
+        <button type="submit" onclick="likeDislikeComment('` + comment.ID + `','like')"
+                id="like-btn-` + comment.ID + `"
+                class="btn btn-outline-success btn-sm">
+            <p id="like-count-` + comment.ID + `" class="d-inline">
+                ` + comment.Like.CountLikes + `
+            </p>
+            <i class="bi bi-hand-thumbs-up"></i>
+        </button>
 
-    // Append card text to card body
-    cardBodyDiv.appendChild(cardTextP);
-
-    // Create the card footer
-    var cardFooterDiv = document.createElement("div");
-    cardFooterDiv.className = "card-footer text-muted";
-    cardFooterDiv.textContent = "Posted by " + comment.CreatedBy + " on " + comment.CreatedOn;
-
-    // Create the hidden inputs and buttons
-    var colDiv = document.createElement("div");
-    colDiv.className = "col";
-
-    var hiddenCommentID = document.createElement("input");
-    hiddenCommentID.type = "hidden";
-    hiddenCommentID.name = "commentID";
-    hiddenCommentID.id = "commentID";
-    hiddenCommentID.value = comment.ID;
-
-    var hiddenIsDislike = document.createElement("input");
-    hiddenIsDislike.type = "hidden";
-    hiddenIsDislike.name = "isLike";
-    hiddenIsDislike.id = "isLike";
-    hiddenIsDislike.value = "dislike";
-
-    var dislikeButton = document.createElement("button");
-    dislikeButton.type = "submit";
-    dislikeButton.className = "btn btn-outline-danger btn-sm";
-    if (comment.Like.IsDisliked) {
-        dislikeButton.classList.add("custom-hover-dislike");
-    }
-    dislikeButton.onclick = function () { likeDislikeComment(comment.ID, 'dislike'); };
-    dislikeButton.innerHTML = '<i class="bi bi-hand-thumbs-down"></i>';
-
-    var hiddenIsLike = document.createElement("input");
-    hiddenIsLike.type = "hidden";
-    hiddenIsLike.name = "isLike";
-    hiddenIsLike.value = "like";
-
-    var likeButton = document.createElement("button");
-    likeButton.type = "submit";
-    likeButton.className = "btn btn-outline-success btn-sm";
-    if (comment.Like.IsLiked) {
-        likeButton.classList.add("custom-hover-like");
-    }
-    likeButton.onclick = function () { likeDislikeComment(comment.ID, 'like'); };
-    likeButton.innerHTML = '<i class="bi bi-hand-thumbs-up"></i>';
-
-    // Append hidden inputs and buttons to the colDiv
-    colDiv.appendChild(hiddenCommentID);
-    colDiv.appendChild(hiddenIsDislike);
-    colDiv.appendChild(dislikeButton);
-    colDiv.appendChild(hiddenIsLike);
-    colDiv.appendChild(likeButton);
-
-    // Append colDiv to card footer
-    cardFooterDiv.appendChild(colDiv);
-
-    // Append card body and card footer to new comment div
-    newCommentDiv.appendChild(cardBodyDiv);
-    newCommentDiv.appendChild(cardFooterDiv);
+        <button type="submit" onclick="likeDislikeComment('` + comment.ID + `','dislike')"
+                id="dislike-btn-` + comment.ID + `" class="btn btn-outline-danger btn-sm">
+            <p id="dislike-count-` + comment.ID + `" class="d-inline">
+                ` + comment.Like.CountDislikes + `
+            </p>
+            <i class="bi bi-hand-thumbs-down"></i>
+        </button>
+    </div>
+</div>`;
 
     // Append the new comment div to the container
     $("#commentsContainer").append(newCommentDiv);
 }
 
 // Example usage
-var comment = {
+const comment = {
     ID: "123",
     Content: "This is a new comment",
     CreatedBy: "User",
@@ -127,7 +86,7 @@ $("input").on("keypress", function () {
 });
 
 function likeDislikeComment(commentID, likeDislike) {
-    var data = JSON.stringify({
+    const data = JSON.stringify({
         ID: commentID,
         isLike: likeDislike
     });

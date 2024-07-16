@@ -19,7 +19,7 @@ func OpenConnection() *sql.DB {
 }
 
 func CloseConnection(db *sql.DB) {
-	db.Close()
+	_ = db.Close()
 }
 
 func initDB(db *sql.DB) *sql.DB {

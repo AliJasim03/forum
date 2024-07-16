@@ -17,15 +17,14 @@
             </div>
             <label for="content">Categories: </label>
             <div class="form-group mb-3">
-                    {{range .Categories}}
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="categories" value="{{.Name}}" id="flexCheckDefault">
-                        <label class="form-check-label" for="flexCheckDefault">
-                            {{.Name}}
-                        </label>
-                    </div>
-                    {{end}}
-                </select>
+                {{range .Categories}}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="categories" value="{{.Name}}" id="flexCheckDefault">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        {{.Name}}
+                    </label>
+                </div>
+                {{end}}
             </div>
             <button id='create-btn' type="button" onclick="creatPost()" class="btn btn-primary btn-block">Create Post</button>
         </div>
@@ -37,13 +36,13 @@
         const createBtn = document.getElementById('create-btn');
         createBtn.disabled = true;
 
-        var title = $("#title").val();
-        var content = $("#content").val();
-        var categories = [];
+        const title = $("#title").val();
+        const content = $("#content").val();
+        const categories = [];
         $.each($("input[name='categories']:checked"), function () {
             categories.push($(this).val());
         });
-        var data = JSON.stringify({
+        const data = JSON.stringify({
             Title: title,
             Content: content,
             Categories: categories
@@ -54,7 +53,7 @@
             contentType: "application/json",
             data: data,  // Send the JSON data object
             success: function (response) {
-                $("#success").html("Post Created Successfully");  // Display success message
+                $("#success").html("Post Created Successfully");  // Display the success message
                 $("#success").show();
                 $("#success").removeClass("d-none");
 
@@ -63,7 +62,7 @@
                 }, 3e3)
             },
             error: function (error) {
-                $("#error").html(error.responseText);  // Display error message
+                $("#error").html(error.responseText);  // Display the error message
                 $("#error").show();
                 $("#error").removeClass("d-none");
                 createBtn.disabled = false;

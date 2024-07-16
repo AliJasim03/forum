@@ -68,7 +68,7 @@
 </div>
 <script>
     $("#categories").on("change", function () {
-        var category = $(this).val();
+        const category = $(this).val();
         if (category === "All") {
             $(".col-md-4").show();
         } else {

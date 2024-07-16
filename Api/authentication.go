@@ -200,7 +200,7 @@ func (s *server) generateCookie(userID string) (http.Cookie, error) {
 
 func (s *server) authenticateCookie(r *http.Request) (bool, int) {
 	// extract token
-	// I used -1 eventhough I want to use nil but there is no optional type in go
+	// I used -1 even though I want to use nil, but there is no optional type in go
 	token, err := r.Cookie("token")
 	if err != nil {
 		return false, -1

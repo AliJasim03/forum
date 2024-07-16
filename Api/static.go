@@ -39,7 +39,7 @@ func (s *server) filterCreatedPost(w http.ResponseWriter, r *http.Request) {
 	var posts []backend.Post
 	var filteredPosts []backend.Post
 	backend.GetPosts(s.db, userID, &posts)
-	// filter the post that is created by the user
+	// filter the posts that are created by the user
 	for i := 0; i < len(posts); i++ {
 		if posts[i].IsCreatedByUser {
 			filteredPosts = append(filteredPosts, posts[i])

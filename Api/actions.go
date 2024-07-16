@@ -7,6 +7,12 @@ import (
 	backend "forum/db"
 )
 
+type PostJson struct {
+	Title      string   `json:"title"`
+	Content    string   `json:"content"`
+	Categories []string `json:"categories"`
+}
+
 type LikeDisJson struct {
 	ID     string `json:"ID"`
 	IsLike string `json:"isLike"`
