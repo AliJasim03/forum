@@ -2,6 +2,21 @@ function loginAction() {
     event.preventDefault(); // Prevent the default form submission
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+
+    if(hasSpaces(email) || hasSpaces(password)){
+        $("#error").html("Email and password cannot contain spaces");
+        $("#error").show();
+        $("#error").removeClass("d-none");
+        $("#error").fadeOut(5000);
+        return;
+    }
+    if (!checkEmail(email)) {
+        $("#error").html("Invalid email address");
+        $("#error").show();
+        $("#error").removeClass("d-none");
+        $("#error").fadeOut(5000);
+        return;
+    }
     $.ajax({
         url: "/loginAction",
         type: "POST",
@@ -22,11 +37,36 @@ function loginAction() {
     });
 }
 
+function checkEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+}
+
+function hasSpaces(string){
+    return string.includes(" ");
+}
+
 function registerAction() {
     event.preventDefault(); // Prevent the default form submission
     const email = document.getElementById('email').value;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
+
+    if(hasSpaces(email) || hasSpaces(username) || hasSpaces(password)){
+        $("#error").html("Email and password and username cannot contain spaces");
+        $("#error").show();
+        $("#error").removeClass("d-none");
+        $("#error").fadeOut(5000);
+        return;
+    }
+
+    if (!checkEmail(email)) {
+        $("#error").html("Invalid email address");
+        $("#error").show();
+        $("#error").removeClass("d-none");
+        $("#error").fadeOut(5000);
+        return;
+    }
 
     $.ajax({
         url: "/registerAction",
