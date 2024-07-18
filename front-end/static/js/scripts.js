@@ -110,4 +110,27 @@ function updateCounters(postID) {
 }
 
 
+$(document).ready(function () {
+    // Get current page URL path
+    var currentPath = window.location.pathname;
 
+    // Iterate over each nav-link element
+    $('.nav-link').each(function () {
+        // Get the href attribute
+        var href = $(this).attr('href');
+
+        // Ensure href is in the same format as currentPath for comparison
+        // Prepend a '/' if href does not start with it
+        if (!href.startsWith('/')) {
+            href = '/' + href;
+        }
+
+        // Check if href matches currentPath
+        if (href === currentPath) {
+            // Remove 'active' class from all nav-link elements
+            $('.nav-link').removeClass('active');
+            // Add 'active' class to the matching nav-link element
+            $(this).addClass('active');
+        }
+    });
+});

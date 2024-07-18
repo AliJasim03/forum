@@ -5,7 +5,6 @@
     <!-- Post Content-->
     <div class="row gx-4 gx-lg-5 justify-content-center">
         <div class="col-lg-8">
-            <div class="alert alert-danger d-none" id="error"></div>
             <!-- Title-->
             <h1 class="mt-4">{{.Post.Title}}</h1>
             <!-- Content-->
@@ -40,7 +39,7 @@
                             </button>
 
                             <button type="submit" onclick="likeDislikeComment('{{$comment.ID}}','dislike')"
-                                    id="dislike-btn-{{$comment.ID}}" class="btn btn-outline-danger btn-sm
+                                id="dislike-btn-{{$comment.ID}}" class="btn btn-outline-danger btn-sm
                                 {{if $comment.Like.IsDisliked}} custom-hover-dislike {{end}}">
                                 <p id="dislike-count-{{$comment.ID}}" class="d-inline">
                                     {{$comment.Like.CountDislikes}}
@@ -53,6 +52,7 @@
                 {{end}}
             </div>
             <hr>
+            <div class="alert alert-danger d-none" id="error"></div>
             <div class="card my-4">
                 <h5 class="card-header">Leave a Comment:</h5>
                 <div class="card-body">

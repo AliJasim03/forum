@@ -63,7 +63,7 @@ func (s *server) likeDislikePost(w http.ResponseWriter, r *http.Request) {
 func (s *server) createPost(res http.ResponseWriter, req *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(req)
 	if !isLoggedIn {
-		http.Redirect(res, req, "/login", http.StatusUnauthorized)
+		http.Error(res, "Please log in to continue", http.StatusBadRequest)
 		return
 	}
 
@@ -104,7 +104,7 @@ func (s *server) createComment(res http.ResponseWriter, req *http.Request) {
 	}
 	isLoggedIn, userID := s.authenticateCookie(req)
 	if !isLoggedIn {
-		http.Redirect(res, req, "/login", http.StatusUnauthorized)
+		http.Error(res, "Please log in to continue", http.StatusBadRequest)
 		return
 	}
 
