@@ -70,6 +70,10 @@ func (s *server) registration(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	if exists {
+		http.Error(res, "username already registered", http.StatusConflict)
+		return
+	}
 	//hash the pass to store it
 	hashPass, err := bcrypt.GenerateFromPassword([]byte(registration.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -127,13 +131,13 @@ func (s *server) login(res http.ResponseWriter, req *http.Request) {
 	var userID int
 	err = s.db.QueryRow("SELECT id, password FROM users WHERE email = ?", login.Email).Scan(&userID, &storedPass)
 	if err != nil {
-		http.Error(res, "invalild username or password", http.StatusUnauthorized)
+		http.Error(res, "invalild email or password", http.StatusUnauthorized)
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(storedPass), []byte(login.Password))
 	if err != nil {
-		http.Error(res, "invalild username or password", http.StatusUnauthorized)
+		http.Error(res, "invalild email or password", http.StatusUnauthorized)
 		return
 	}
 

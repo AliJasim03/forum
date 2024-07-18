@@ -105,7 +105,11 @@ func (s *server) createPostPage(w http.ResponseWriter, r *http.Request) {
 func (s *server) postPage(w http.ResponseWriter, r *http.Request) {
 	isLoggedIn, userID := s.authenticateCookie(r)
 	post := backend.Post{}
+	//check if the post id is valid
 	postID := r.URL.Query().Get("id")
+	if postID == "" {
+		http.Error(w, "Invalid post ID", http.StatusBadRequest)
+	}
 	// convert string to int
 	id, err := strconv.Atoi(postID)
 	if err != nil {
@@ -114,6 +118,11 @@ func (s *server) postPage(w http.ResponseWriter, r *http.Request) {
 	}
 	post.ID = id
 	backend.GetPost(s.db, userID, &post)
+	//check if post was not nil
+	if post.Title == "" {
+		http.Error(w, "Post not found", http.StatusNotFound)
+		return
+	}
 
 	renderTemplate(w, "postDetails", map[string]interface{}{
 		"Title":      "Post",
