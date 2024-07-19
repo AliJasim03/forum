@@ -190,6 +190,12 @@ func (s *server) generateCookie(userID string) (http.Cookie, error) {
 	// Format the future time
 	formattedTime := futureTime.Format("2006-01-02 15:04:05")
 
+	//check if the cookie exit in db
+	_, err = s.db.Exec("DELETE FROM sessions WHERE user_id = ?", userID)
+	if err != nil {
+		return http.Cookie{}, fmt.Errorf("failed to delete old session: %w", err)
+	}
+
 	s.db.Exec("INSERT INTO sessions (user_id, session_token, expires_at) VALUES (?, ?, ?)",
 		userID, sessionToken.String(), formattedTime)
 
@@ -197,6 +203,7 @@ func (s *server) generateCookie(userID string) (http.Cookie, error) {
 		Name:     "token",
 		Value:    sessionToken.String(),
 		HttpOnly: true,
+		Expires:  futureTime,
 		Path:     "/",
 	}
 	return cookie, nil

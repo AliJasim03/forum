@@ -1,6 +1,14 @@
 function submitComment(postID) {
 
     const comment = $("#comment").val();
+    //check if the comment is empty or only contains spaces
+    if (comment === "" || !comment.trim()) {
+        $("#error").html("Comment cannot be empty");
+        $("#error").show();
+        $("#error").removeClass("d-none");
+        $("#error").fadeOut(5000);
+        return;
+    }
     const data = JSON.stringify({
         PostID: postID,
         Comment: comment

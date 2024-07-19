@@ -22,6 +22,11 @@ func renderTemplate(w http.ResponseWriter, tmpl string, data interface{}) {
 }
 
 func (s *server) indexHandler(w http.ResponseWriter, r *http.Request) {
+	//check if the url /
+	if r.URL.Path != "/" {
+		http.NotFound(w, r)
+		return
+	}
 	isLoggedIn, userID := s.authenticateCookie(r)
 	var posts []backend.Post
 	backend.GetPosts(s.db, userID, &posts)

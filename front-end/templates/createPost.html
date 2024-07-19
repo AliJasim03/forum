@@ -42,6 +42,27 @@
         $.each($("input[name='categories']:checked"), function () {
             categories.push($(this).val());
         });
+
+        //check if the title and content is empty or contain only spaces
+        if (title.trim() === "" || content.trim() === "") {
+            $("#error").html("Title and Content are required");
+            $("#error").show();
+            $("#error").removeClass("d-none");
+            $("#error").fade(3000);
+            createBtn.disabled = false;
+            return;
+        }
+
+        //check if the categories is empty
+        if (categories.length === 0) {
+            $("#error").html("Categories are required");
+            $("#error").show();
+            $("#error").removeClass("d-none");
+            $("#error").fade(3000);
+            createBtn.disabled = false;
+            return;
+        }
+
         const data = JSON.stringify({
             Title: title,
             Content: content,

@@ -51,7 +51,7 @@ function registerAction() {
     const email = document.getElementById('email').value;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-
+    debugger;
     if(hasSpaces(email) || hasSpaces(username) || hasSpaces(password)){
         $("#error").html("Email and password and username cannot contain spaces");
         $("#error").show();
