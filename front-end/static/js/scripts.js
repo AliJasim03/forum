@@ -51,7 +51,6 @@ function registerAction() {
     const email = document.getElementById('email').value;
     const username = document.getElementById('username').value;
     const password = document.getElementById('password').value;
-    debugger;
     if(hasSpaces(email) || hasSpaces(username) || hasSpaces(password)){
         $("#error").html("Email and password and username cannot contain spaces");
         $("#error").show();
@@ -78,11 +77,9 @@ function registerAction() {
         }),
         contentType: "application/json",
         success: function (data) {
-            debugger;
             window.location.href = "/";
         },
         error: function (data) {
-            debugger;
             $("#error").html(data.responseText); // Assuming your server sends plain text error messages
             $("#error").show();
             $("#error").removeClass("d-none");
@@ -139,7 +136,6 @@ function updateCounters(postID) {
         }),
         contentType: "application/json",
         success: function (data) {
-            debugger;
             $('#like-count-' + postID).text(data.likes);
             $('#dislike-count-' + postID).text(data.dislikes);
         },

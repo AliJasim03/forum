@@ -138,7 +138,6 @@ function updateCommentCounters(commentID) {
             ID: commentID
         }),
         success: function (response) {
-            debugger;
             $('#like-count-' + commentID).text(response.likes);
             $('#dislike-count-' + commentID).text(response.dislikes);
         },
