@@ -33,6 +33,7 @@
 <br>
 <script>
     function creatPost() {
+        debugger;
         const createBtn = document.getElementById('create-btn');
         createBtn.disabled = true;
 
@@ -48,8 +49,8 @@
             $("#error").html("Title and Content are required");
             $("#error").show();
             $("#error").removeClass("d-none");
-            $("#error").fade(3000);
             createBtn.disabled = false;
+            $("#error").fadeOut(3000);
             return;
         }
 
@@ -58,8 +59,8 @@
             $("#error").html("Categories are required");
             $("#error").show();
             $("#error").removeClass("d-none");
-            $("#error").fade(3000);
             createBtn.disabled = false;
+            $("#error").fadeOut(3000);
             return;
         }
 
